@@ -34,18 +34,46 @@ async function newPage(browser,d){const ctx=await browser.newContext({viewport:{
  return{ctx,page,errs};}
 const overflow=page=>page.evaluate(()=>Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-window.innerWidth);
 
-async function checkHome(browser,base,d,E,O){const {ctx,page,errs}=await newPage(browser,d);const tag=`home @${d.name}`;
- await page.goto(base,{waitUntil:'load'});await page.waitForSelector('.tile',{timeout:8000}).catch(()=>{});
- const tiles=await page.$$eval('.tile',t=>t.length);const want=new Set([...E.games.map(g=>g.id),...O.games.map(g=>g.id)]).size;
- ok(tiles===want,`${tag}: one tile per game`,`${tiles} tiles, ${want} games`);
- ok(await overflow(page)<=1,`${tag}: not wider than the screen`,`${await overflow(page)}px too wide`);
- if(d.name==='laptop'){const hrefs=await page.$$eval('.tile a',a=>a.map(x=>x.href));
-  for(const h of hrefs){const r=await page.request.get(h.split('?')[0]);ok(r.ok(),`${tag}: link works ${h.replace(base,'')}`,String(r.status()));}}
+async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(g=>g.id),...O.games.map(g=>g.id)]).size;
+ for(const view of ['tiles','carousel']){const {ctx,page,errs}=await newPage(browser,d);const tag=`home ${view} @${d.name}`;
+  await page.goto(base+`?view=${view}`,{waitUntil:'load'});await page.waitForFunction(()=>window.ARCADE_HOME&&ARCADE_HOME.ready,null,{timeout:8000}).catch(()=>{});await page.waitForTimeout(150);
+  ok(await overflow(page)<=1,`${tag}: not wider than the screen`,`${await overflow(page)}px too wide`);
+  ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1),`${tag}: the page itself never scrolls (one screen)`);
+  if(view==='tiles'){const n=await page.$$eval('.tile',t=>t.length);ok(n===want,`${tag}: one tile per game`,`${n} tiles, ${want} games`);
+   // on anything bigger than a phone every tile fits on screen without scrolling
+   const big=d.w>=700&&d.h>=600;
+   if(big){const off=await page.evaluate(()=>[...document.querySelectorAll('.tile')].filter(t=>{const r=t.getBoundingClientRect();return r.bottom>innerHeight+1||r.right>innerWidth+1||r.top<0||r.height<120;}).length);
+    ok(off===0,`${tag}: every game fits on one screen`,`${off} tiles off screen or too small`);}
+   const clipped=await page.evaluate(()=>[...document.querySelectorAll('.tile .acts .btn')].filter(b=>{const r=b.getBoundingClientRect(),t=b.closest('.tile').getBoundingClientRect();return r.right>t.right+1||r.left<t.left-1||b.scrollWidth>b.clientWidth+1;}).length);
+   ok(clipped===0,`${tag}: play buttons fit inside their tiles`,`${clipped} clipped`);
+   if(d.name==='laptop'){const hrefs=await page.$$eval('.tile .acts a',a=>a.map(x=>x.href));
+    for(const h of hrefs){const r=await page.request.get(h.split('?')[0]);ok(r.ok(),`${tag}: link works ${h.replace(base,'')}`,String(r.status()));}}}
+  else{const n=await page.$$eval('.card',t=>t.length);ok(n===want,`${tag}: one card per game`,`${n} cards`);
+   const f=await page.evaluate(()=>{const c=document.querySelector('.card.front');if(!c)return null;const r=c.getBoundingClientRect();return{l:r.left,r:r.right,t:r.top,b:r.bottom,o:+getComputedStyle(c).opacity,id:c.id};});
+   ok(f&&f.o>.95&&f.l>=-1&&f.r<=d.w+1&&f.t>=-1&&f.b<=d.h+1,`${tag}: the front card is clear and on screen`,JSON.stringify(f));
+   const before=await page.evaluate(()=>ARCADE_HOME.front());await page.click('#next');await page.waitForTimeout(650);
+   ok(await page.evaluate(()=>ARCADE_HOME.front())!==before,`${tag}: the › button turns the carousel`);
+   // a swipe turns it too
+   const box=await page.$eval('#ringWrap',e=>{const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};});const b2=await page.evaluate(()=>ARCADE_HOME.front());
+   await page.mouse.move(box.x+120,box.y);await page.mouse.down();for(let i=1;i<=8;i++)await page.mouse.move(box.x+120-i*40,box.y);await page.mouse.up();await page.waitForTimeout(650);
+   ok(await page.evaluate(()=>ARCADE_HOME.front())!==b2,`${tag}: dragging turns the carousel`);}
+  ok(!errs.length,`${tag}: no errors`,errs.join(' | '));await ctx.close();}
+ // the ⋮ menu opens the log and help as windows; Escape closes them; the ⓘ shows the description
+ const {ctx,page,errs}=await newPage(browser,d);const tag=`windows @${d.name}`;
+ await page.goto(base+'?view=tiles',{waitUntil:'load'});await page.waitForFunction(()=>window.ARCADE_HOME&&ARCADE_HOME.ready,null,{timeout:8000}).catch(()=>{});
+ await page.click('#menuBtn');ok(await page.isVisible('#menu'),`${tag}: ⋮ opens the menu`);
+ await page.click('#menu [data-open="log"]');await page.waitForSelector('#win-log .run',{timeout:6000}).catch(()=>{});
+ ok(await page.isVisible('#win-log')&&await page.$$eval('#win-log .run',r=>r.length)>=1,`${tag}: Evolution log opens in a window with the runs`);
+ const wb=await page.$eval('#win-log',w=>{const r=w.getBoundingClientRect();return r.left>=-1&&r.top>=-1&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;});ok(wb,`${tag}: the log window is fully on screen`);
+ ok(await overflow(page)<=1,`${tag}: log window not wider than the screen`);
+ await page.keyboard.press('Escape');await page.waitForTimeout(150);ok(!(await page.isVisible('#win-log')),`${tag}: Escape closes the window`);
+ await page.click('#menuBtn');await page.click('#menu [data-open="how"]');ok(await page.isVisible('#win-how'),`${tag}: How it works opens in a window`);
+ await page.click('#win-how [data-close]');await page.waitForTimeout(150);ok(!(await page.isVisible('#win-how')),`${tag}: ✕ closes the window`);
+ await page.click('#infoBtn');ok(await page.isVisible('#info')&&/experiment/.test(await page.textContent('#info')),`${tag}: ⓘ shows the description`);
  ok(!errs.length,`${tag}: no errors`,errs.join(' | '));await ctx.close();
- const ev=await newPage(browser,d);await ev.page.goto(base+'evolution.html',{waitUntil:'load'});await ev.page.waitForSelector('.run',{timeout:8000}).catch(()=>{});
- ok(await ev.page.$$eval('.run',r=>r.length)>=1,`evolution @${d.name}: shows the runs`);
- ok(await overflow(ev.page)<=1,`evolution @${d.name}: not wider than the screen`,`${await overflow(ev.page)}px too wide`);
- ok(!ev.errs.length,`evolution @${d.name}: no errors`,ev.errs.join(' | '));await ev.ctx.close();}
+ // old evolution.html links still land in the log window
+ if(d.name==='laptop'){const x=await newPage(browser,d);await x.page.goto(base+'evolution.html#run-0');await x.page.waitForSelector('#win-log .run',{timeout:8000}).catch(()=>{});
+  ok(await x.page.isVisible('#win-log'),'evolution.html: redirects to the log window');await x.ctx.close();}}
 
 async function checkGame(browser,base,d,side,g){const {ctx,page,errs}=await newPage(browser,d);const tag=`${side}/${g.id} @${d.name}`;
  try{

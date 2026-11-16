@@ -2,42 +2,92 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07081a">
 <title>Retro Arcade — an AI evolution experiment</title>
 <meta name="description" content="Eleven retro arcade games. Every week an AI gets free rein to improve them or invent new ones. Play the originals, play the AI's versions, and see every change.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=1">
+<link rel="stylesheet" href="assets/site.css?v=2">
+<script>
+ /* Pick tiles or carousel before first paint, so the wrong view never flashes up (?view= wins, then the saved choice). */
+ (function(){var v=null;try{v=new URLSearchParams(location.search).get('view')||localStorage.getItem('retro.view');}catch(e){}
+  document.documentElement.dataset.view=v==='carousel'?'carousel':'tiles';})();
+</script>
 </head>
-<body>
-<header class="hero">
+<body class="app">
+<header class="topbar">
   <h1 class="logo"><span>RETRO</span> <span>ARCADE</span></h1>
-  <p class="lede">Eleven retro arcade games, and an experiment. Every week an AI gets free rein to improve them —
-    modernise them, rework them, or invent a brand-new game. Play each original next to the AI's latest version, and see exactly what changed and when.</p>
-  <div class="stats" id="stats" aria-live="polite"></div>
-  <nav class="links"><a class="btn neon" href="evolution.html">📜 Evolution log</a><a class="btn" href="#how">How it works</a></nav>
+  <button type="button" class="ibtn" id="infoBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="info" title="About this arcade" aria-label="About this arcade">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="4.6" r="1" fill="currentColor"/><path d="M8 7v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+  <span class="grow"></span>
+  <div class="seg" role="group" aria-label="View">
+    <button type="button" data-view="tiles" title="Tiles" aria-label="Tiles view"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg></button>
+    <button type="button" data-view="carousel" title="Carousel" aria-label="Carousel view"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="10.5" rx="7" ry="3" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="5.5" y="2" width="5" height="7" rx="1"/><rect x="1" y="4" width="3" height="5" rx=".8" opacity=".55"/><rect x="12" y="4" width="3" height="5" rx=".8" opacity=".55"/></svg></button>
+  </div>
+  <div class="menuwrap">
+    <button type="button" class="ibtn" id="menuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu" title="More" aria-label="More">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>
+    </button>
+    <div class="menu" id="menu" role="menu" hidden>
+      <button type="button" role="menuitem" data-open="log">📜 Evolution log</button>
+      <button type="button" role="menuitem" data-open="how">🧪 How it works</button>
+      <button type="button" role="menuitem" data-open="about">ⓘ About</button>
+      <a role="menuitem" href="https://github.com/stuartokin/RetroArcade">⌥ Code on GitHub</a>
+      <a role="menuitem" href="https://stuartokin.github.io/">◎ HorizonQ Observatories</a>
+    </div>
+  </div>
 </header>
-<main>
-  <section class="grid" id="grid" aria-label="Games"><p class="loading">Loading the games…</p></section>
-  <section class="how" id="how">
-    <h2>How it works</h2>
+
+<main class="stage" id="stage">
+  <section class="tiles" id="tiles" aria-label="Games"></section>
+  <section class="carousel" id="carousel" aria-label="Games as a carousel">
+    <div class="ring-wrap" id="ringWrap" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Swipe, drag or use the arrow keys to turn"><div class="ring" id="ring"></div></div>
+    <div class="cnav"><button type="button" class="ibtn" id="prev" aria-label="Previous game">‹</button><span class="dots" id="dots"></span><button type="button" class="ibtn" id="next" aria-label="Next game">›</button></div>
+  </section>
+</main>
+<p class="foot">By <b>Stuart Okin</b> · <span class="disc">Written in a personal capacity and do not represent the position of any organisation I am engaged with.</span></p>
+
+<!-- the ⓘ popover -->
+<div class="pop" id="info" role="dialog" aria-label="About this arcade" hidden>
+  <p class="lede">Eleven retro arcade games, and an experiment. Every week an AI gets free rein to improve them — modernise them, rework them, or invent a brand-new game. Play each original next to the AI's latest version, and see exactly what changed and when.</p>
+  <div class="stats" id="stats"></div>
+  <p class="small"><a href="#log" data-open="log">📜 Evolution log</a> · <a href="#how" data-open="how">🧪 How it works</a></p>
+  <p class="small">By <b>Stuart Okin</b>. Part of <a href="https://stuartokin.github.io/">HorizonQ Observatories</a>. All games are original works inspired by classic arcade genres.</p>
+  <p class="small disc">Written in a personal capacity and do not represent the position of any organisation I am engaged with.</p>
+  <p class="small ver" id="ver"></p>
+</div>
+
+<!-- app windows (Evolution log, How it works) -->
+<div class="scrim" id="scrim" hidden></div>
+<section class="win" id="win-log" role="dialog" aria-modal="true" aria-labelledby="win-log-t" hidden>
+  <header class="wbar"><span class="wdots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="win-log-t">📜 Evolution log</h2><button type="button" class="ibtn wclose" data-close aria-label="Close">✕</button></header>
+  <div class="wbody">
+    <p class="wlede">Every weekly AI run, newest first: what changed in each game, why, and when. Filter by game, compare pictures, or play the version from any week.</p>
+    <div class="chips" id="chips" role="toolbar" aria-label="Show changes for"></div>
+    <div class="log" id="log"><p class="loading">Loading the log…</p></div>
+    <p class="small">The AI keeps a <a href="https://github.com/stuartokin/RetroArcade/blob/main/ai/JOURNAL.md">journal</a> of ideas between runs. Full code history is on <a href="https://github.com/stuartokin/RetroArcade">GitHub</a>.</p>
+  </div>
+</section>
+<section class="win" id="win-how" role="dialog" aria-modal="true" aria-labelledby="win-how-t" hidden>
+  <header class="wbar"><span class="wdots" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="win-how-t">🧪 How it works</h2><button type="button" class="ibtn wclose" data-close aria-label="Close">✕</button></header>
+  <div class="wbody prose">
     <ol>
       <li><b>Original</b> is each game as it started: frozen, never touched by the AI.</li>
       <li><b>AI-enhanced</b> began as an identical copy. Every Sunday morning an AI agent (Claude, by Anthropic) is given the whole copy and no brief beyond
         “make these games better, your way”. It decides whether to polish one game, rework several, modernise everything or create a new game.</li>
       <li>Before anything goes live, an automatic test rig plays every game on phone, foldable, tablet and laptop screens. If anything breaks, the change waits for a human.</li>
-      <li>Every run is written up in the <a href="evolution.html">evolution log</a>: what changed in each game, why the AI chose it, before-and-after pictures, and a playable copy of that week's version.</li>
+      <li>Every run is written up in the <a href="#log" data-open="log">evolution log</a>: what changed in each game, why the AI chose it, before-and-after pictures, and a playable copy of that week's version.</li>
     </ol>
+    <p>Each run has a spending cap, and its cost is shown in the log. The AI also keeps a <a href="https://github.com/stuartokin/RetroArcade/blob/main/ai/JOURNAL.md">journal</a> between runs, so it can plan changes over several weeks.</p>
     <p>Scores are kept on this device only. Nothing is sent anywhere.</p>
-  </section>
-</main>
-<footer class="foot">
-  <p>By <b>Stuart Okin</b>. Part of <a href="https://stuartokin.github.io/">HorizonQ Observatories</a>. All games are original works inspired by classic arcade genres.</p>
-  <p class="disc">Written in a personal capacity and do not represent the position of any organisation I am engaged with.</p>
-  <p class="ver" id="ver"></p>
-</footer>
-<script src="assets/common.js?v=1"></script>
-<script src="assets/home.js?v=1"></script>
+    <p><b>Controls:</b> arrows or W A S D to move, Space to fire, P to pause. On touch screens, buttons appear beside or below the game.</p>
+  </div>
+</section>
+
+<script src="assets/common.js?v=2"></script>
+<script src="assets/evolution.js?v=2"></script>
+<script src="assets/home.js?v=2"></script>
 </body>
 </html>

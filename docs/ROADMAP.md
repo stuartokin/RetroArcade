@@ -10,12 +10,16 @@
 - **16 Nov 2026**: the AI's conditions are `ai/BRIEF.md` + `tools/evolve/guard.mjs` + `tests/check.js`.
   Any change to them is logged here with a date, because it changes the experiment.
 
+- **16 Nov 2026**: home page as a one-screen app with Tiles/Carousel switch; log and help in ⋮ windows.
+- **16 Nov 2026**: run 1 (AI: Super Snake → garden game) went live; cost $1.04, 31 steps, 10 min.
+  It published straight to `main` because Actions may not open pull requests yet (see below).
+
 ## Open / waiting on Stuart
 
-- [ ] `ANTHROPIC_API_KEY` secret in this repo (Settings → Secrets and variables → Actions).
-- [ ] Settings → Actions → General: "Read and write permissions" + "Allow GitHub Actions to create and
-      approve pull requests".
-- [ ] Settings → Pages: deploy from branch `main`, folder `/ (root)`.
+- [x] `ANTHROPIC_API_KEY` secret (done 16 Nov).
+- [ ] Settings → Actions → General: tick "Allow GitHub Actions to create and approve pull requests"
+      (run 1 had to publish straight to `main`, so it has no pull request to show the code changes).
+- [x] Pages on (done 16 Nov).
 - [ ] Optional: repository variable `EVOLVE_MODEL` to pin the model (unset = Claude Code's default).
 
 ## Next

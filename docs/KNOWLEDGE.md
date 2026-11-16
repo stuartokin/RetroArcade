@@ -19,8 +19,10 @@ what the AI did, when, and why, and play any past week's version.
 
 | Path | What |
 |---|---|
-| `index.html` + `assets/home.js` | Home: stats strip, one tile per game (▶ Original / ✨ AI version, "last changed…") |
-| `evolution.html` + `assets/evolution.js` | The log: runs newest first, chips to filter by game, before → after pictures, links to the past version, PR and run log |
+| `index.html` + `assets/home.js` | The home app on one screen: top bar (ⓘ popover, Tiles/Carousel switch saved as `retro.view` and chosen before first paint, ⋮ menu) and the two views. Tiles are sized by `fitTiles()` (most columns × rows that fit; under ~165 px they scroll in 2–3 columns); the carousel is a CSS 3D ring (`place()`, `goTo()`). `window.ARCADE_HOME` is the test hook |
+| windows (`#win-log`, `#win-how` in `index.html`) | App-style windows opened from ⋮; hash addresses `#log`, `#log/game=id`, `#log/run-N`, `#how`; Back/Escape/✕ close |
+| `assets/evolution.js` | `RALog.show(game, run)`: draws the log inside its window (chips, runs newest first, before → after pictures, past-version links, PR and run log) |
+| `evolution.html` | Redirect to `./#log` (keeps old links working) |
 | `assets/common.js`, `assets/site.css` | Shared loader (games lists, log, version), next-run date, styles |
 | `original/` | `play.html` (one page plays any game: `?game=id`), `js/host.js` (shell), `js/retro.js` (pixel toolkit), `js/games.js` (all 11 games), `css/play.css`, `games.json` |
 | `enhanced/` | The AI's copy: same layout to begin with; the AI may restructure it |
@@ -97,7 +99,12 @@ the rig read these. Ids are permanent: the history is keyed on them.
 
 - **Devices:** laptop 1440×900, phone 390×844, Fold folded 344×882, open 884×1104, sideways 882×344,
   iPad 820×1180, Stuart's 1908×950, QHD and 4K.
-- **Pages:** home and log on every device: one tile per game, links work, not too wide, no errors.
+- **Pages:** on every device, in both views:
+  - the page never scrolls, and is never too wide
+  - one tile or card per game; every tile fits on one screen (bigger than a phone); buttons aren't clipped
+  - the carousel turns by › and by drag
+  - the ⋮ menu opens the log and help windows; Escape and ✕ close them; ⓘ shows the description
+  - links work, and there are no errors
 - **Games:**
   - every game on laptop, phone and folded Fold
   - on the other devices, all enhanced games and a rotating quarter of the originals

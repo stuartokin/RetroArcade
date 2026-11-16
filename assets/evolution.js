@@ -1,8 +1,11 @@
 'use strict';
 // Evolution log: every run, newest first; filter by game; before/after pictures; play any past version.
-(async()=>{
- const {esc,fmt,load}=RA,log=document.getElementById('log'),chipsEl=document.getElementById('chips');
- let d;try{d=await load();}catch(e){log.innerHTML='<p class="empty">Couldn\'t load the log. Please refresh.</p>';return;}
+// Drawn inside the "Evolution log" window. RALog.show(game, run) opens it on a game filter or scrolls to a run.
+// Addresses: #log, #log/game=maze, #log/run-3.
+const RALog=(()=>{
+ const {esc,fmt,load}=RA;let ready=null,render=null,filter='*';
+ const log=()=>document.getElementById('log'),chipsEl=()=>document.getElementById('chips');
+ async function init(){let d;try{d=await load();}catch(e){log().innerHTML='<p class="empty">Couldn\'t load the log. Please refresh.</p>';return;}
  const {orig,enh,runs}=d,info=new Map(orig.games.map(g=>[g.id,g]));
  // the AI may rename a game; its newest name wins
  enh.games.forEach(g=>info.set(g.id,g));
@@ -14,8 +17,7 @@
  function before(id,run){for(const r of runs){if(r.run<run&&r.shots&&r.shots[id])return{src:r.shots[id],run:r.run};}return null;}
  const order=[...enh.games.map(g=>g.id),...orig.games.map(g=>g.id)];
  const allIds=[...new Set(runs.flatMap(touched))].filter(id=>id!=='all').sort((a,b)=>order.indexOf(a)-order.indexOf(b));
- let filter=(location.hash.match(/game=([\w-]+)/)||[])[1]||'*';
- function chips(){chipsEl.innerHTML=[['*','All games'],...allIds.map(id=>[id,name(id)])].map(([id,l])=>`<button type="button" class="chip" data-g="${esc(id)}" aria-pressed="${filter===id}">${esc(l)}</button>`).join('');}
+ function chips(){chipsEl().innerHTML=[['*','All games'],...allIds.map(id=>[id,name(id)])].map(([id,l])=>`<button type="button" class="chip" data-g="${esc(id)}" aria-pressed="${filter===id}">${esc(l)}</button>`).join('');}
  function shotsHTML(id,r){const a=r.shots&&r.shots[id],b=before(id,r.run);if(!a&&!b)return'';
   return `<div class="shots">${b?`<figure><img loading="lazy" src="${esc(b.src)}" alt="${esc(name(id))} before run ${r.run}"><figcaption>Before (${b.run===0?'the start':'run '+b.run})</figcaption></figure><span class="arrow" aria-hidden="true">→</span>`:''}${a?`<figure><img loading="lazy" src="${esc(a)}" alt="${esc(name(id))} after run ${r.run}"><figcaption>After run ${r.run}</figcaption></figure>`:''}</div>`;}
  function changeHTML(r,c){const id=c.game,what=Array.isArray(c.what)?c.what:[c.what].filter(Boolean),isNew=(r.new_games||[]).includes(id);
@@ -32,9 +34,10 @@
    <h2>${esc(r.title||'')}</h2>${r.summary?`<p>${esc(r.summary)}</p>`:''}${ch.map(c=>changeHTML(r,c)).join('')}
    ${r.kind==='baseline'&&r.shots?`<div class="shots start">${Object.entries(r.shots).filter(([id])=>filter==='*'||id===filter).map(([id,src])=>`<figure><a href="original/play.html?game=${encodeURIComponent(id)}"><img loading="lazy" src="${esc(src)}" alt="${esc(name(id))} at the start"></a><figcaption>${esc(name(id))}</figcaption></figure>`).join('')}</div>`:''}
    ${how?`<details><summary>How it was tested, cost and ideas</summary>${how}</details>`:''}${meta?`<div class="meta">${meta}</div>`:''}</article>`;}
- function render(){chips();const list=filter==='*'?runs:runs.filter(r=>hits(r,filter)||r.kind==='baseline');
-  log.innerHTML=list.length?list.map(runHTML).join(''):'<p class="empty">No runs yet.</p>';}
- chipsEl.addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;filter=b.dataset.g;history.replaceState(null,'',filter==='*'?location.pathname:`#game=${filter}`);render();});
- render();
- const m=location.hash.match(/^#run-(\d+)/);if(m){const el=document.getElementById('run-'+m[1]);if(el)el.scrollIntoView();}
+ render=()=>{chips();const list=filter==='*'?runs:runs.filter(r=>hits(r,filter)||r.kind==='baseline');
+  log().innerHTML=list.length?list.map(runHTML).join(''):'<p class="empty">No runs yet.</p>';};
+ chipsEl().addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;filter=b.dataset.g;history.replaceState(history.state,'',filter==='*'?'#log':`#log/game=${filter}`);render();log().parentElement.scrollTop=0;});}
+ async function show(game,run){if(!ready)ready=init();await ready;filter=game||'*';if(render)render();
+  const box=log().closest('.wbody');if(run!=null){const el=document.getElementById('run-'+run);if(el&&box)box.scrollTop=el.offsetTop-box.offsetTop-8;}else if(box)box.scrollTop=0;}
+ return{show};
 })();

@@ -3,28 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07081a">
 <title>Evolution log — Retro Arcade</title>
-<meta name="description" content="Every change the AI has made to the Retro Arcade games: what, why and when, with before-and-after pictures and playable past versions.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=1">
+<script>
+ /* The log now opens as a window in the arcade. Old links (#game=maze, #run-3) still land in the right place. */
+ (function(){var h=location.hash.replace(/^#/,'');location.replace('./#log'+(h?'/'+h:''));})();
+</script>
 </head>
-<body>
-<header class="hero small">
-  <a class="back" href="./">◀ Arcade</a>
-  <h1 class="logo sm"><span>EVOLUTION</span> <span>LOG</span></h1>
-  <p class="lede">Every weekly AI run, newest first: what changed in each game, why, and when. Filter by game, compare pictures, or play the version from any week.</p>
-  <div class="chips" id="chips" role="toolbar" aria-label="Show changes for"></div>
-</header>
-<main class="log" id="log"><p class="loading">Loading the log…</p></main>
-<footer class="foot">
-  <p>The AI also keeps a <a id="journal" href="https://github.com/stuartokin/RetroArcade/blob/main/ai/JOURNAL.md">journal</a> of ideas between runs. Full code history is on <a href="https://github.com/stuartokin/RetroArcade">GitHub</a>.</p>
-  <p>By <b>Stuart Okin</b>. Part of <a href="https://stuartokin.github.io/">HorizonQ Observatories</a>.</p>
-  <p class="disc">Written in a personal capacity and do not represent the position of any organisation I am engaged with.</p>
-  <p class="ver" id="ver"></p>
-</footer>
-<script src="assets/common.js?v=1"></script>
-<script src="assets/evolution.js?v=1"></script>
+<body style="background:#07081a;color:#eef0ff;font-family:system-ui,sans-serif">
+<p><a href="./#log" style="color:#3fe0ff">Open the evolution log</a></p>
 </body>
 </html>
