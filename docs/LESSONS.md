@@ -17,3 +17,14 @@ See also `docs/SHARED-LESSONS.md` in stuartokin.github.io.
    then lost at the commit step. Use plain `git add -A` and let `.gitignore` do the work. The
    workflow now also uploads the AI's work as a download if publishing fails. Test the publish step
    locally, not just the AI and check steps. (16 Nov 2026)
+5. **Recorded clips need a per-game autopilot.** One generic key pattern made Snake circle on the spot,
+   and Block Drop lost at once because Space hard-drops. `tools/clips.js` keeps per-game key plans, hold
+   times and a no-fire list, and retakes when a game ends mid-clip. (16 Nov 2026)
+6. **"pac" matched "space".** Substring search needs word-start matching first. Commercial game names
+   were later removed from search altogether (Stuart). (16 Nov 2026)
+7. **Wide games looked squashed in tall tiles.** Planet Guardian and Meteor Storm are landscape; `cover`
+   cropped them to a blown-up middle third. They get `.wide` (`contain`), and the rig checks it.
+   `.pic.wide` first lost to the more specific `.tile img.pic`. (16 Nov 2026)
+8. **A huge carousel card needs a swipe rule.** On QHD and 4K a normal drag snapped back to the same
+   card. Any clear swipe (40 px or more) now moves at least one card. (16 Nov 2026)
+
