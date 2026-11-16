@@ -182,7 +182,7 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
           # one tidy commit, whatever the AI did with git along the way
           git reset --soft "$BASE"
-          git add -A -- . ':!tests/out' ':!node_modules'
+          git add -A   # .gitignore keeps out node_modules and tests/out
           if git diff --cached --quiet; then echo "::warning::The AI changed nothing."; exit 0; fi
           BRANCH="ai/run-$RUN3"
           TITLE="🤖 AI run $RUN — $(jq -r '.title // "no report"' ai/RUN-REPORT.json 2>/dev/null || echo 'no report')"
@@ -208,6 +208,19 @@ jobs:
             echo "::warning::Couldn't open a pull request (check Settings → Actions → 'Allow GitHub Actions to create and approve pull requests'). Publishing straight to main."
             git push origin "HEAD:main"
           fi
+      - name: Keep the AI's work if publishing failed
+        if: failure() && steps.guard.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-work-run-${{ steps.prep.outputs.RUN3 }}
+          path: |
+            enhanced/
+            ai/
+            data/
+            archive/
+            media/runs/
+            version.json
+          retention-days: 30
       - name: Republish the site
         if: steps.guard.outcome == 'success' && steps.tests.outcome == 'success'
         env:

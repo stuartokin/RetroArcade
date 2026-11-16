@@ -12,3 +12,8 @@ See also `docs/SHARED-LESSONS.md` in stuartokin.github.io.
 3. **The AI must not hold git credentials.** The checkout uses `persist-credentials: false`, and the
    workflow commits after the rule check. Whatever the AI did with git, the workflow does a soft
    reset to the starting commit before committing. (design, 16 Nov 2026)
+4. **`git add -A -- . ':!ignored-dir'` fails if the excluded folder is git-ignored.** Git treats
+   naming an ignored path as an error, so the first AI run (16 Nov 2026) passed every check and was
+   then lost at the commit step. Use plain `git add -A` and let `.gitignore` do the work. The
+   workflow now also uploads the AI's work as a download if publishing fails. Test the publish step
+   locally, not just the AI and check steps. (16 Nov 2026)
