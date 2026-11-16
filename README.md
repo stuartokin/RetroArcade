@@ -1,6 +1,6 @@
 # Retro Arcade
 
-Eleven original retro arcade games, and an experiment: every week an AI gets free rein to improve them,
+Original retro arcade games, and an experiment: every week an AI gets free rein to improve them,
 or invent new ones. Play each **original** next to the **AI-enhanced** version, and see every change,
 when it was made and why, in the **evolution log**.
 

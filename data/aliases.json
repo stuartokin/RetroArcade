@@ -1,0 +1,43 @@
+{
+ "about": "Classic arcade games each original game is inspired by. Used only by the search box (type 'Defender' to find Planet Guardian); never shown on tiles. AI-invented games list theirs as \"inspired_by\" in enhanced/games.json.",
+ "games": {
+  "invaders": [
+   "Space Invaders",
+   "Galaxian"
+  ],
+  "maze": [
+   "Pac-Man",
+   "Ms. Pac-Man"
+  ],
+  "meteor": [
+   "Asteroids"
+  ],
+  "guardian": [
+   "Defender"
+  ],
+  "ladder": [
+   "Donkey Kong"
+  ],
+  "racer": [
+   "Spy Hunter",
+   "Road Fighter"
+  ],
+  "snake": [
+   "Snake",
+   "Nibbler"
+  ],
+  "pinball": [
+   "Pinball"
+  ],
+  "bricks": [
+   "Breakout",
+   "Arkanoid"
+  ],
+  "hopper": [
+   "Frogger"
+  ],
+  "blocks": [
+   "Tetris"
+  ]
+ }
+}

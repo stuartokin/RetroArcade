@@ -114,6 +114,7 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
           npm install -g @anthropic-ai/claude-code
       - name: Check the API key is set
         env:

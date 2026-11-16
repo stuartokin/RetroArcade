@@ -1,0 +1,28 @@
+{
+ "enhanced": {
+  "meteor": "media/clips/enhanced/meteor.mp4",
+  "snake": "media/clips/enhanced/snake.mp4",
+  "maze": "media/clips/enhanced/maze.mp4",
+  "hopper": "media/clips/enhanced/hopper.mp4",
+  "invaders": "media/clips/enhanced/invaders.mp4",
+  "guardian": "media/clips/enhanced/guardian.mp4",
+  "ladder": "media/clips/enhanced/ladder.mp4",
+  "racer": "media/clips/enhanced/racer.mp4",
+  "pinball": "media/clips/enhanced/pinball.mp4",
+  "bricks": "media/clips/enhanced/bricks.mp4",
+  "blocks": "media/clips/enhanced/blocks.mp4"
+ },
+ "original": {
+  "invaders": "media/clips/original/invaders.mp4",
+  "maze": "media/clips/original/maze.mp4",
+  "meteor": "media/clips/original/meteor.mp4",
+  "guardian": "media/clips/original/guardian.mp4",
+  "ladder": "media/clips/original/ladder.mp4",
+  "racer": "media/clips/original/racer.mp4",
+  "snake": "media/clips/original/snake.mp4",
+  "pinball": "media/clips/original/pinball.mp4",
+  "bricks": "media/clips/original/bricks.mp4",
+  "hopper": "media/clips/original/hopper.mp4",
+  "blocks": "media/clips/original/blocks.mp4"
+ }
+}

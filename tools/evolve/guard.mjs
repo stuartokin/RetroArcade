@@ -20,6 +20,7 @@ const ids=new Set();
 if(enh){if(!Array.isArray(enh.games)||!enh.games.length)bad('enhanced/games.json lists no games');
  for(const g of enh.games||[]){if(!/^[a-z0-9-]+$/.test(g.id||''))bad(`Bad game id: ${JSON.stringify(g.id)}`);if(ids.has(g.id))bad(`Duplicate game id: ${g.id}`);ids.add(g.id);
   for(const k of ['name','icon','desc','play','origin'])if(!g[k])bad(`${g.id}: missing "${k}" in enhanced/games.json`);
+  if(g.inspired_by!==undefined&&!(Array.isArray(g.inspired_by)&&g.inspired_by.every(x=>typeof x==='string'&&x.length<60)))bad(`${g.id}: "inspired_by" must be a list of short names`);
   if(g.origin==='ai'&&!/^\d{4}-\d{2}-\d{2}$/.test(g.born||''))bad(`${g.id}: an AI-made game needs "born": "YYYY-MM-DD"`);
   const f=path.join('enhanced',String(g.play||'').split(/[?#]/)[0]);if(!g.play||!fs.existsSync(f))bad(`${g.id}: play page ${g.play} doesn't exist`);
   if(/^(\/|\.\.|[a-z]+:)/i.test(g.play||''))bad(`${g.id}: play must be a page inside enhanced/`);}}

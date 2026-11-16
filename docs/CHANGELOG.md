@@ -2,6 +2,25 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.2.0 — 16 Nov 2026
+
+- **Moving previews:** every game has a 6-second silent looping clip of it being played
+  (`tools/clips.js`, an autopilot, about 15–85 KB each, `media/clips/<side>/<id>.mp4`, listed in
+  `data/clips.json`).
+  - **Tiles:** play while on screen.
+  - **Carousel:** the front card plays.
+  - **Reduced-motion setting:** gets stills.
+  - **Evolution log:** shows the original playing next to each change's before and after pictures.
+  - **Weekly run:** the workflow re-records clips of the games the AI changed (installs ffmpeg if missing).
+- **Search in the title bar** (🔍 on phones):
+  - matches names, descriptions and the classic each game is like (`data/aliases.json`:
+    "Defender" finds Planet Guardian)
+  - the classic's name only appears as a "like …" hint in the results
+  - picking a result highlights the tile (the rest dim) or turns the carousel to it
+- AI contract (see ROADMAP): optional `"inspired_by"` on AI-invented games; the AI is told not to run
+  `tools/clips.js`.
+- Wording: "Retro arcade games" instead of "Eleven…", because more will come.
+
 ## 1.1.0 — 16 Nov 2026
 
 - The home page is now a one-screen app (Stuart's request):

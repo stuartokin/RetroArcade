@@ -14,18 +14,23 @@
 - **16 Nov 2026**: run 1 (AI: Super Snake → garden game) went live; cost $1.04, 31 steps, 10 min.
   It published straight to `main` because Actions may not open pull requests yet (see below).
 
+- **16 Nov 2026**: AI contract change: optional `inspired_by` (list of classic names) on AI-invented
+  games in `enhanced/games.json`, for search; guard checks it. Classic names for the original games
+  live in `data/aliases.json` (site side), shown only as "like …" in search results.
+- **16 Nov 2026**: moving previews (recorded clips) instead of stills; the AI version plays on the
+  home page, the original plays in the log.
+
 ## Open / waiting on Stuart
 
 - [x] `ANTHROPIC_API_KEY` secret (done 16 Nov).
-- [ ] Settings → Actions → General: tick "Allow GitHub Actions to create and approve pull requests"
-      (run 1 had to publish straight to `main`, so it has no pull request to show the code changes).
+- [x] Settings → Actions: "Allow GitHub Actions to create and approve pull requests" (Stuart, 16 Nov; first
+      confirmed by the next AI run having a pull request).
 - [x] Pages on (done 16 Nov).
 - [ ] Optional: repository variable `EVOLVE_MODEL` to pin the model (unset = Claude Code's default).
 
 ## Next
 
-- [ ] A card on HorizonQ Observatories (stuartokin.github.io) once a few runs have happened, with a
-      demo video (the "before → after" story).
+- [x] Card on HorizonQ Observatories ("Just for fun"), with a trailer (16 Nov 2026).
 - [ ] After ~4 runs: review cost per run and the quality of the log; adjust the budget.
 
 ## Parked ideas

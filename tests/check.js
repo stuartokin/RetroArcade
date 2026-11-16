@@ -56,7 +56,9 @@ async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(
    // a swipe turns it too
    const box=await page.$eval('#ringWrap',e=>{const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};});const b2=await page.evaluate(()=>ARCADE_HOME.front());
    await page.mouse.move(box.x+120,box.y);await page.mouse.down();for(let i=1;i<=8;i++)await page.mouse.move(box.x+120-i*40,box.y);await page.mouse.up();await page.waitForTimeout(650);
-   ok(await page.evaluate(()=>ARCADE_HOME.front())!==b2,`${tag}: dragging turns the carousel`);}
+   ok(await page.evaluate(()=>ARCADE_HOME.front())!==b2,`${tag}: dragging turns the carousel`);
+   await page.evaluate(()=>ARCADE_HOME.highlight('blocks'));await page.waitForTimeout(700);ok(await page.evaluate(()=>ARCADE_HOME.front())==='blocks',`${tag}: a search result turns the carousel to that game`);
+   ok(await page.$$eval('.card video.clip',v=>v.filter(x=>!x.paused).length)<=1,`${tag}: only the front card plays its preview`);}
   ok(!errs.length,`${tag}: no errors`,errs.join(' | '));await ctx.close();}
  // the ⋮ menu opens the log and help as windows; Escape closes them; the ⓘ shows the description
  const {ctx,page,errs}=await newPage(browser,d);const tag=`windows @${d.name}`;
@@ -70,6 +72,20 @@ async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(
  await page.click('#menuBtn');await page.click('#menu [data-open="how"]');ok(await page.isVisible('#win-how'),`${tag}: How it works opens in a window`);
  await page.click('#win-how [data-close]');await page.waitForTimeout(150);ok(!(await page.isVisible('#win-how')),`${tag}: ✕ closes the window`);
  await page.click('#infoBtn');ok(await page.isVisible('#info')&&/experiment/.test(await page.textContent('#info')),`${tag}: ⓘ shows the description`);
+ await page.keyboard.press('Escape');
+ // search: a classic's name finds our game, and picking it highlights the tile
+ if(d.w<=700)await page.click('#searchBtn');
+ await page.fill('#q','Defender');await page.waitForTimeout(150);
+ const first=await page.$eval('#results [role=option]',b=>b.dataset.id).catch(()=>null);
+ ok(first==='guardian',`${tag}: searching "Defender" finds Planet Guardian`,String(first));
+ await page.keyboard.press('Enter');await page.waitForTimeout(500);
+ const hit=await page.evaluate(()=>{const t=document.querySelector('.tile.hit');if(!t)return null;const r=t.getBoundingClientRect();return{id:t.id,on:r.top>=-1&&r.bottom<=innerHeight+1};});
+ ok(hit&&hit.id==='g-guardian'&&hit.on,`${tag}: the found game is highlighted and on screen`,JSON.stringify(hit));
+ ok(await overflow(page)<=1,`${tag}: search not wider than the screen`);
+ for(const [t,id] of [['tetris','blocks'],['frogger','hopper'],['pac','maze'],['asteroids','meteor'],['maze','maze']]){const r=await page.evaluate(t=>ARCADE_HOME.find(t)[0],t);ok(r===id,`${tag}: "${t}" finds ${id}`,String(r));}
+ // moving previews play in the tiles on screen
+ await page.waitForTimeout(800);const playing=await page.$$eval('.tile video.clip',v=>v.filter(x=>!x.paused&&x.readyState>=2).length);
+ ok(playing>=1,`${tag}: game previews are playing`,`${playing} playing`);
  ok(!errs.length,`${tag}: no errors`,errs.join(' | '));await ctx.close();
  // old evolution.html links still land in the log window
  if(d.name==='laptop'){const x=await newPage(browser,d);await x.page.goto(base+'evolution.html#run-0');await x.page.waitForSelector('#win-log .run',{timeout:8000}).catch(()=>{});

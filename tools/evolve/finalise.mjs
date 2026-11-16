@@ -23,6 +23,8 @@ const touched=[...new Set([...(rep.changes||[]).map(c=>c.game),...(rep.new_games
 const ids=touched.includes('all')?enh.games.map(g=>g.id):touched.filter(id=>enh.games.some(g=>g.id===id));
 let shots={};
 if(ids.length){try{shots=JSON.parse(execFileSync('node',['tools/shots.js','--dir=enhanced',`--games=${ids.join(',')}`,`--out=media/runs/${run3}`],{encoding:'utf8',stdio:['ignore','pipe','inherit']}).trim().split('\n').pop());}catch(e){console.error('Pictures failed: '+e.message);}}
+// 3b. moving previews for the home page (needs ffmpeg; a failure here never blocks the run)
+if(ids.length){try{execFileSync('node',['tools/clips.js','--dir=enhanced',`--games=${ids.join(',')}`],{stdio:'inherit'});}catch(e){console.error('Clips failed: '+e.message);}}
 // 4. the log entry
 const entry={run,date,kind:rep.kind,focus:E.FOCUS||'ai-decides',...(E.GAME?{focus_game:E.GAME}:{}),title:rep.title,summary:rep.summary,
  changes:(rep.changes||[]).map(c=>({game:c.game,what:Array.isArray(c.what)?c.what:[String(c.what)],why:c.why||''})),

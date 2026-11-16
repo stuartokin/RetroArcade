@@ -6,7 +6,7 @@ const RALog=(()=>{
  const {esc,fmt,load}=RA;let ready=null,render=null,filter='*';
  const log=()=>document.getElementById('log'),chipsEl=()=>document.getElementById('chips');
  async function init(){let d;try{d=await load();}catch(e){log().innerHTML='<p class="empty">Couldn\'t load the log. Please refresh.</p>';return;}
- const {orig,enh,runs}=d,info=new Map(orig.games.map(g=>[g.id,g]));
+ const {orig,enh,runs,clips}=d,oclip=(clips&&clips.original)||{},info=new Map(orig.games.map(g=>[g.id,g]));
  // the AI may rename a game; its newest name wins
  enh.games.forEach(g=>info.set(g.id,g));
  const name=id=>{if(id==='all')return '🕹️ Every game';const g=info.get(id);return g?`${g.icon} ${g.name}`:id;};
@@ -18,8 +18,11 @@ const RALog=(()=>{
  const order=[...enh.games.map(g=>g.id),...orig.games.map(g=>g.id)];
  const allIds=[...new Set(runs.flatMap(touched))].filter(id=>id!=='all').sort((a,b)=>order.indexOf(a)-order.indexOf(b));
  function chips(){chipsEl().innerHTML=[['*','All games'],...allIds.map(id=>[id,name(id)])].map(([id,l])=>`<button type="button" class="chip" data-g="${esc(id)}" aria-pressed="${filter===id}">${esc(l)}</button>`).join('');}
+ const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ // the original game, playing on a loop, for comparison
+ const origClip=id=>oclip[id]&&!still?`<figure><video src="${esc(oclip[id])}" muted loop autoplay playsinline preload="metadata" aria-label="${esc(name(id))}: the original, playing"></video><figcaption>The original, playing</figcaption></figure>`:'';
  function shotsHTML(id,r){const a=r.shots&&r.shots[id],b=before(id,r.run);if(!a&&!b)return'';
-  return `<div class="shots">${b?`<figure><img loading="lazy" src="${esc(b.src)}" alt="${esc(name(id))} before run ${r.run}"><figcaption>Before (${b.run===0?'the start':'run '+b.run})</figcaption></figure><span class="arrow" aria-hidden="true">→</span>`:''}${a?`<figure><img loading="lazy" src="${esc(a)}" alt="${esc(name(id))} after run ${r.run}"><figcaption>After run ${r.run}</figcaption></figure>`:''}</div>`;}
+  return `<div class="shots">${b?`<figure><img loading="lazy" src="${esc(b.src)}" alt="${esc(name(id))} before run ${r.run}"><figcaption>Before (${b.run===0?'the start':'run '+b.run})</figcaption></figure><span class="arrow" aria-hidden="true">→</span>`:''}${a?`<figure><img loading="lazy" src="${esc(a)}" alt="${esc(name(id))} after run ${r.run}"><figcaption>After run ${r.run}</figcaption></figure>`:''}${origClip(id)}</div>`;}
  function changeHTML(r,c){const id=c.game,what=Array.isArray(c.what)?c.what:[c.what].filter(Boolean),isNew=(r.new_games||[]).includes(id);
   const playPast=r.archive&&id!=='all'?`<a class="btn ai" href="${esc(r.archive)}play.html?game=${encodeURIComponent(id)}">▶ Play the run ${r.run} version</a>`:'';
   const playOrig=!isNew&&orig.games.some(g=>g.id===id)?`<a class="btn" href="original/play.html?game=${encodeURIComponent(id)}">▶ Original</a>`:'';

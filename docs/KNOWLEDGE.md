@@ -21,6 +21,8 @@ what the AI did, when, and why, and play any past week's version.
 |---|---|
 | `index.html` + `assets/home.js` | The home app on one screen: top bar (ⓘ popover, Tiles/Carousel switch saved as `retro.view` and chosen before first paint, ⋮ menu) and the two views. Tiles are sized by `fitTiles()` (most columns × rows that fit; under ~165 px they scroll in 2–3 columns); the carousel is a CSS 3D ring (`place()`, `goTo()`). `window.ARCADE_HOME` is the test hook |
 | windows (`#win-log`, `#win-how` in `index.html`) | App-style windows opened from ⋮; hash addresses `#log`, `#log/game=id`, `#log/run-N`, `#how`; Back/Escape/✕ close |
+| search (in `home.js`) | `find()` scores name (start/contains), the classics (`aliases.json` + `inspired_by`; whole-word first), then words in the description; `highlight(id)` glows the tile / turns the carousel |
+| previews (in `home.js`) | `<video class=clip>` over each still; an IntersectionObserver plays tiles on screen; the carousel plays its front card; none for reduced motion |
 | `assets/evolution.js` | `RALog.show(game, run)`: draws the log inside its window (chips, runs newest first, before → after pictures, past-version links, PR and run log) |
 | `evolution.html` | Redirect to `./#log` (keeps old links working) |
 | `assets/common.js`, `assets/site.css` | Shared loader (games lists, log, version), next-run date, styles |
@@ -34,6 +36,8 @@ what the AI did, when, and why, and play any past week's version.
 | `ai/RUN-REPORT.json` | The latest run's report (AI writes it; the workflow copies it into the log) |
 | `tools/evolve/` | `prepare.mjs` (run number + prompt), `guard.mjs` (rule check), `finalise.mjs` (log, archive, pictures, PR text), `narrate.mjs` (readable Actions log) |
 | `tools/shots.js` | Pictures of games a couple of seconds into play |
+| `tools/clips.js` | 6-second looping clips of each game played by an autopilot (ffmpeg) → `media/clips/<side>/<id>.mp4` + `data/clips.json`. Per-game key plans, hold times and no-fire list at the top; retries if the game ends during a take |
+| `data/aliases.json` | Classic games each original is like, for search only |
 | `tests/check.js`, `tests/serve.js` | The test rig and a tiny static server |
 | `.github/workflows/evolve.yml` | The weekly run · `tests.yml`: rig on every push to `main` |
 | `automation.json` | Kill switch |
