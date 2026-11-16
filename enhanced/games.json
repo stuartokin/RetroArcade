@@ -55,7 +55,7 @@
    "id": "snake",
    "name": "Super Snake",
    "icon": "🐍",
-   "desc": "Eat footballs to grow. Don’t bite your tail!",
+   "desc": "Eat the fruit, chase the ladybird and don’t bite your tail!",
    "play": "play.html?game=snake",
    "origin": "classic"
   },
@@ -92,5 +92,5 @@
    "origin": "classic"
   }
  ],
- "run": 0
+ "run": 1
 }

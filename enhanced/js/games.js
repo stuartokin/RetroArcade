@@ -528,65 +528,129 @@ function makeRacer(env){
 // 7. SUPER SNAKE
 // =====================================================================================================
 function makeSnake(env){
+ // Run 1 (AI): Super Snake moves to a garden. Fruit instead of footballs, a ladybird to chase,
+ // a turn queue so quick double turns always count, a smooth tapered snake, lawn and hedges.
  const two=env.players===2,N=24,C=20,W=N*C,H=N*C,G={W,H,score:0,lives:3,level:1,levelName:'Level',over:false,scores:[0,0],livesArr:[3,3]};
- const FX=Retro.fx();
+ const FX=Retro.fx(),PER_LEVEL=8;
  const LAYOUTS=[[],
   [...Array(10)].flatMap((_,i)=>[[7+i,7],[7+i,16]]),
   [[5,5],[6,5],[5,6],[6,6],[17,5],[18,5],[17,6],[18,6],[5,17],[6,17],[5,18],[6,18],[17,17],[18,17],[17,18],[18,18]],
   [...Array(9)].flatMap((_,i)=>[[11,7+i],[12,7+i]]).concat([...Array(6)].flatMap((_,i)=>[[5+i,11],[13+i,11]])),
   [...Array(14)].flatMap((_,i)=>i>4&&i<9?[]:[[5+i,5],[5+i,18],[5,5+i],[18,5+i]])];
- const COL=[['#9dff2e','#3cc46a','#34b35f'],['#ff9ad8','#ff4fd8','#d93fb8']];
- let food,star=null,t=0,eaten=0,clock=0,pops=[],walls=new Set(),banner={t:1.6,text:'LEVEL 1',sub:two?'2 SNAKES - EAT MORE THAN YOUR RIVAL!':'EAT THE FOOTBALLS'};
+ // snake colours: [head, body, pattern, belly]
+ const COL=[['#ffd23f','#f5b82e','#e0662a','#fff1a8'],['#ff9ad8','#ff6fd0','#a43ad6','#ffd6f2']];
+ // fruit kinds: points (×level) and how often they turn up
+ const FRUIT=[{n:'APPLE',p:500,w:5},{n:'CHERRIES',p:750,w:3},{n:'PEAR',p:1000,w:2},{n:'STRAWBERRY',p:1500,w:1}];
+ let food,bug=null,t=0,eaten=0,clock=0,pops=[],walls=new Set(),lawn=null,banner={t:1.6,text:'LEVEL 1',sub:two?'2 SNAKES - EAT MORE THAN YOUR RIVAL!':'EAT THE FRUIT - CHASE THE LADYBIRD'};
  const key=(x,y)=>x+','+y,isWall=(x,y)=>x<1||y<1||x>N-2||y>N-2||walls.has(key(x,y));
- const setLayout=()=>{walls=new Set(LAYOUTS[(G.level-1)%LAYOUTS.length].map(([x,y])=>key(x,y)));};
- const S=(two?[0,1]:[0]).map(i=>({i,lives:3,score:0,deathT:0,combo:1,lastEat:-9,out:false}));
+ const setLayout=()=>{walls=new Set(LAYOUTS[(G.level-1)%LAYOUTS.length].map(([x,y])=>key(x,y)));lawn=null;};
+ const S=(two?[0,1]:[0]).map(i=>({i,lives:3,score:0,deathT:0,combo:1,lastEat:-9,out:false,q:[],held:'',tongue:0}));
  const occupied=(x,y)=>S.some(s=>!s.out&&s.sn&&s.sn.some(p=>p[0]===x&&p[1]===y));
- const free=()=>{let x,y,k=0;do{x=R(1,N-2);y=R(1,N-2);k++;}while(k<500&&(isWall(x,y)||occupied(x,y)||(food&&food[0]===x&&food[1]===y)));return[x,y];};
- function reset(s){if(s.i===0){s.sn=[[4,3],[3,3],[2,3]];s.dir=[1,0];}else{s.sn=[[19,20],[20,20],[21,20]];s.dir=[-1,0];}s.prev=s.sn.map(p=>p.slice());s.want=s.dir.slice();s.combo=1;}
- setLayout();S.forEach(reset);food=free();
+ const taken=(x,y)=>isWall(x,y)||occupied(x,y)||(food&&food.x===x&&food.y===y)||(bug&&bug.x===x&&bug.y===y);
+ const free=()=>{let x,y,k=0;do{x=R(1,N-2);y=R(1,N-2);k++;}while(k<500&&(taken(x,y)||S.some(s=>s.sn&&!s.out&&Math.abs(s.sn[0][0]-x)+Math.abs(s.sn[0][1]-y)<3)));return[x,y];};
+ const newFood=()=>{let r=Math.random()*11,k=0;while(r>FRUIT[k].w){r-=FRUIT[k].w;k++;}const[x,y]=free();food={x,y,k,born:clock};};
+ function reset(s){if(s.i===0){s.sn=[[4,3],[3,3],[2,3]];s.dir=[1,0];}else{s.sn=[[19,20],[20,20],[21,20]];s.dir=[-1,0];}s.prev=s.sn.map(p=>p.slice());s.q=[];s.combo=1;}
+ setLayout();S.forEach(reset);newFood();
  const interval=()=>Math.max(.055,.14-G.level*.012);
- function crash(s){s.lives--;s.deathT=1.4;env.beep(90,.5,'sawtooth',.07,.3);env.noise(.7,.09,700);FX.shake(10);s.sn.forEach((p,i)=>{if(i%2===0)FX.burst(p[0]*C+C/2,p[1]*C+C/2,[COL[s.i][0],COL[s.i][1],'#fff'],6,120,.8,3);});}
+ // queue a turn (up to 3 ahead) so two quick key presses inside one step both count
+ const DIRS={l:[-1,0],r:[1,0],u:[0,-1],d:[0,1]};
+ function queue(s,d){const last=s.q.length?s.q[s.q.length-1]:s.dir;if((d[0]===last[0]&&d[1]===last[1])||(d[0]===-last[0]&&d[1]===-last[1]))return;if(s.q.length<3)s.q.push(d);}
+ function crash(s){s.lives--;s.deathT=1.4;env.beep(90,.5,'sawtooth',.07,.3);env.noise(.7,.09,700);FX.shake(10);s.sn.forEach((p,i)=>{if(i%2===0)FX.burst(p[0]*C+C/2,p[1]*C+C/2,[COL[s.i][0],COL[s.i][2],'#fff'],6,120,.8,3);});}
+ function moveBug(){if(!bug)return;// the ladybird wanders, and scurries away from a snake head that gets close
+  const h=S[0].sn[0],opts=[[1,0],[-1,0],[0,1],[0,-1]].map(d=>[bug.x+d[0],bug.y+d[1],d]).filter(([x,y])=>!isWall(x,y)&&!occupied(x,y)&&!(food&&food.x===x&&food.y===y));
+  if(!opts.length)return;const near=Math.abs(h[0]-bug.x)+Math.abs(h[1]-bug.y)<5;
+  let best=opts[0];if(near){let bd=-1;for(const o of opts){const dd=Math.abs(h[0]-o[0])+Math.abs(h[1]-o[1])+Math.random()*1.5;if(dd>bd){bd=dd;best=o;}}}
+  else{const same=opts.find(o=>o[2][0]===bug.d[0]&&o[2][1]===bug.d[1]);best=same&&Math.random()<.7?same:pick(opts);}
+  bug.px=bug.x;bug.py=bug.y;bug.x=best[0];bug.y=best[1];bug.d=best[2];bug.mt=0;}
+ function eat(s,h){const f=FRUIT[food.k];eaten++;s.combo=clock-s.lastEat<3?Math.min(5,s.combo+1):1;s.lastEat=clock;const pts=f.p*G.level*s.combo;s.score+=pts;
+  pops.push({x:h[0]*C+C/2,y:h[1]*C,t:.9,txt:s.combo>1?`${fmtN(pts)} X${s.combo}`:fmtN(pts),c:COL[s.i][0]});
+  env.beep(660+s.combo*110,.07,'square',.04,1.35);setTimeout(()=>env.beep(990+s.combo*110,.06,'square',.03,1.2),55);
+  FX.burst(h[0]*C+C/2,h[1]*C+C/2,['#fff','#ff4a4a','#7be05a'],10,120,.5,2);newFood();
+  if(eaten%5===0&&!bug){const[x,y]=free();bug={x,y,px:x,py:y,d:[1,0],t:9,mt:0};env.beep(1200,.05,'triangle',.04,1.5);}
+  if(eaten%PER_LEVEL===0){const b=5000*G.level;S.forEach(x=>{if(!x.out)x.score+=b;});env.beep(523,.1,'square',.05);setTimeout(()=>env.beep(659,.1,'square',.05),110);setTimeout(()=>env.beep(784,.2,'square',.05),220);
+   banner={t:1.8,text:`LEVEL ${G.level+1}!`,sub:`+${fmtN(b)} - NEW GARDEN - A BIT FASTER`,then:()=>{G.level++;setLayout();S.forEach(x=>{if(!x.out)reset(x);});bug=null;newFood();}};}}
  G.update=(dt,i1,i2)=>{clock+=dt;FX.update(dt);pops.forEach(p=>{p.t-=dt;p.y-=18*dt;});pops=pops.filter(p=>p.t>0);
   if(banner){banner.t-=dt;if(banner.t<=0){const f=banner.then;banner=null;if(f)f();}return;}
   const ins=[i1,i2||{}];
-  for(const s of S){if(s.out)continue;const inp=ins[s.i];if(inp.l)s.want=[-1,0];else if(inp.r)s.want=[1,0];else if(inp.u)s.want=[0,-1];else if(inp.d)s.want=[0,1];
+  for(const s of S){if(s.out)continue;const inp=ins[s.i];let now='';for(const k of ['l','r','u','d'])if(inp[k]&&!s.held.includes(k))now=k;s.held=['l','r','u','d'].filter(k=>inp[k]).join('');if(now)queue(s,DIRS[now]);
+   s.tongue=Math.max(0,s.tongue-dt);if(s.tongue<=0&&Math.random()<dt*.5)s.tongue=.35;
    if(s.deathT>0){s.deathT-=dt;if(s.deathT<=0){if(s.lives<=0)s.out=true;else reset(s);}}}
-  if(star){star.t-=dt;if(star.t<=0)star=null;}
+  if(bug){bug.t-=dt;bug.mt+=dt;if(bug.t<=0){FX.burst(bug.x*C+C/2,bug.y*C+C/2,['#ff3b3b','#222'],8,90,.5,2);bug=null;}else if(bug.mt>=.32)moveBug();}
   t+=dt;
   if(t>=interval()){t=0;
    const live=S.filter(s=>!s.out&&s.deathT<=0);
-   for(const s of live){if(!(s.want[0]===-s.dir[0]&&s.want[1]===-s.dir[1]))s.dir=s.want;s.next=[s.sn[0][0]+s.dir[0],s.sn[0][1]+s.dir[1]];s.prev=s.sn.map(p=>p.slice());}
+   for(const s of live){if(s.q.length)s.dir=s.q.shift();s.next=[s.sn[0][0]+s.dir[0],s.sn[0][1]+s.dir[1]];s.prev=s.sn.map(p=>p.slice());}
    for(const s of live){const h=s.next;const hitBody=S.some(o=>!o.out&&o.sn.some((p,j)=>p[0]===h[0]&&p[1]===h[1]&&!(o===s&&j===o.sn.length-1)));const headOn=live.some(o=>o!==s&&o.next[0]===h[0]&&o.next[1]===h[1]);
     if(isWall(h[0],h[1])||hitBody||headOn){crash(s);continue;}
     s.sn.unshift(h);
-    if(h[0]===food[0]&&h[1]===food[1]){eaten++;s.combo=clock-s.lastEat<3?Math.min(5,s.combo+1):1;s.lastEat=clock;const pts=500*G.level*s.combo;s.score+=pts;pops.push({x:h[0]*C+C/2,y:h[1]*C,t:.9,txt:s.combo>1?`${fmtN(pts)} X${s.combo}`:fmtN(pts),c:COL[s.i][0]});
-     env.beep(700+s.combo*120,.08,'square',.04,1.3);FX.burst(h[0]*C+C/2,h[1]*C+C/2,['#fff','#ffe45e'],10,120,.5,2);food=free();if(eaten%5===0)star={p:free(),t:6};
-     if(eaten%8===0){const b=5000*G.level;S.forEach(x=>{if(!x.out)x.score+=b;});banner={t:1.8,text:`LEVEL ${G.level+1}!`,sub:`+${fmtN(b)} - NEW MAZE - A BIT FASTER`,then:()=>{G.level++;setLayout();S.forEach(x=>{if(!x.out)reset(x);});food=free();star=null;}};}}
-    else if(star&&h[0]===star.p[0]&&h[1]===star.p[1]){s.score+=3000*G.level;pops.push({x:h[0]*C+C/2,y:h[1]*C,t:.9,txt:fmtN(3000*G.level),c:'#ffe45e'});star=null;env.beep(1500,.2,'triangle',.06,1.4);FX.burst(h[0]*C+C/2,h[1]*C+C/2,Retro.CYCLE,24,160,.7,3);}
+    if(h[0]===food.x&&h[1]===food.y)eat(s,h);
+    else if(bug&&h[0]===bug.x&&h[1]===bug.y){const p=3000*G.level;s.score+=p;pops.push({x:h[0]*C+C/2,y:h[1]*C,t:1.1,txt:fmtN(p),c:'#ff5a5a'});bug=null;env.beep(1500,.2,'triangle',.06,1.4);FX.burst(h[0]*C+C/2,h[1]*C+C/2,Retro.CYCLE,24,160,.7,3);}
     else s.sn.pop();}}
   G.scores=two?S.map(s=>s.score):[S[0].score,0];G.score=Math.max(...S.map(s=>s.score));G.lives=S[0].lives;G.livesArr=S.map(s=>Math.max(0,s.lives));
   if(!banner&&S.every(s=>s.out)){banner={t:1.2,text:'GAME OVER',color:'#ff2d55',then:()=>G.over=true};}};
- G.swipe=(dx,dy)=>{S[0].want=Math.abs(dx)>Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)];};
- G._clear=()=>{eaten=7;const s=S[0];const h=[s.sn[0][0]+s.dir[0],s.sn[0][1]+s.dir[1]];if(!isWall(h[0],h[1]))food=h;};
- G.render=ctx=>{const[ox,oy]=FX.offset();ctx.save();ctx.translate(ox,oy);ctx.fillStyle='#0f2a17';ctx.fillRect(-20,-20,W+40,H+40);ctx.fillStyle='#14361e';for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++)if((x+y)%2)ctx.fillRect(x*C,y*C,C,C);
-  ctx.fillStyle='#ff8a1c';ctx.fillRect(0,0,W,C);ctx.fillRect(0,H-C,W,C);ctx.fillRect(0,0,C,H);ctx.fillRect(W-C,0,C,H);
-  for(const k of walls){const[x,y]=k.split(',').map(Number);ctx.fillStyle='#ff8a1c';ctx.fillRect(x*C,y*C,C,C);ctx.fillStyle='#c8641e';ctx.fillRect(x*C+3,y*C+3,C-6,C-6);}
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`17px ${EMOJI_FONT}`;ctx.fillText(env.themeEm||'⚽',food[0]*C+C/2,food[1]*C+C/2+1+Math.sin(clock*6)*1.5);
-  if(star){ctx.fillText('⭐',star.p[0]*C+C/2,star.p[1]*C+C/2+1);ctx.fillStyle='#ffe45e';ctx.fillRect(star.p[0]*C,star.p[1]*C+C,C*star.t/6,3);}
+ G.swipe=(dx,dy)=>{queue(S[0],Math.abs(dx)>Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)]);};
+ G._peek=()=>({sn:S[0].sn,dir:S[0].dir,q:S[0].q,food,bug,isWall,occupied,banner:!!banner,eaten});// for test drives
+ G._clear=()=>{eaten=PER_LEVEL-1;const s=S[0];const h=[s.sn[0][0]+s.dir[0],s.sn[0][1]+s.dir[1]];if(!isWall(h[0],h[1])){food.x=h[0];food.y=h[1];}};
+ // ---------- drawing ----------
+ function drawFruit(c,k,x,y,sc=1){c.save();c.translate(x,y);c.scale(sc,sc);
+  const ball=(bx,by,r,col,hl)=>{c.fillStyle=col;c.beginPath();c.arc(bx,by,r,0,Math.PI*2);c.fill();c.fillStyle=hl;c.beginPath();c.arc(bx-r*.35,by-r*.35,r*.3,0,Math.PI*2);c.fill();};
+  const leaf=(lx,ly,a)=>{c.fillStyle='#4fc24a';c.beginPath();c.ellipse(lx,ly,4,2,a,0,Math.PI*2);c.fill();};
+  c.strokeStyle='#6b3d1f';c.lineWidth=1.6;c.lineCap='round';
+  if(k===0){c.beginPath();c.moveTo(0,-5);c.lineTo(1,-9);c.stroke();leaf(4,-8,-.5);ball(0,1,7,'#e8322b','#ff9a8a');}
+  else if(k===1){c.beginPath();c.moveTo(-4,0);c.quadraticCurveTo(-2,-8,2,-9);c.moveTo(4,1);c.quadraticCurveTo(3,-6,2,-9);c.stroke();leaf(5,-8,.4);ball(-4,3,4.6,'#c4122f','#ff8a9a');ball(4,4,4.6,'#d9163a','#ff8a9a');}
+  else if(k===2){c.beginPath();c.moveTo(0,-7);c.lineTo(1,-10);c.stroke();leaf(-4,-8,.5);c.fillStyle='#b8d93a';c.beginPath();c.arc(0,-3,4.2,0,Math.PI*2);c.arc(0,3,6.5,0,Math.PI*2);c.fill();c.fillStyle='#e6f59a';c.beginPath();c.arc(-2.5,1,1.8,0,Math.PI*2);c.fill();}
+  else{c.fillStyle='#ef2b44';c.beginPath();c.moveTo(-7,-3);c.quadraticCurveTo(0,-7,7,-3);c.quadraticCurveTo(5,6,0,9);c.quadraticCurveTo(-5,6,-7,-3);c.fill();c.fillStyle='#ffe28a';for(const[a,b]of[[-3,0],[2,-1],[0,3],[-1,6],[4,3]])c.fillRect(a,b,1.4,1.4);c.fillStyle='#3fae3a';c.beginPath();c.moveTo(-6,-4);c.lineTo(0,-8);c.lineTo(6,-4);c.lineTo(0,-3);c.fill();}
+  c.restore();}
+ function drawBug(c,x,y,a,tt){c.save();c.translate(x,y);c.rotate(a);c.strokeStyle='#1a1a1a';c.lineWidth=1.4;const w=Math.sin(tt*30)*1.5;
+  for(const s of[-1,1])for(const o of[-3,0,3]){c.beginPath();c.moveTo(o,0);c.lineTo(o+(s*o===0?w:w*s),s*8);c.stroke();}
+  c.fillStyle='#1a1a1a';c.beginPath();c.arc(6,0,3.6,0,Math.PI*2);c.fill();c.fillStyle='#e8241e';c.beginPath();c.ellipse(-1,0,7,6.5,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='#1a1a1a';c.lineWidth=1;c.beginPath();c.moveTo(5,0);c.lineTo(-8,0);c.stroke();c.fillStyle='#1a1a1a';for(const[a,b]of[[-3,-3],[-3,3],[1,-3.5],[1,3.5],[-6,0]]){c.beginPath();c.arc(a,b,1.3,0,Math.PI*2);c.fill();}
+  c.fillStyle='#fff';c.fillRect(7,-2,1.2,1.2);c.fillRect(7,1,1.2,1.2);c.restore();}
+ function paintLawn(){lawn=document.createElement('canvas');lawn.width=W;lawn.height=H;const c=lawn.getContext('2d');
+  // garden wall round the edge (bricks), then the lawn on top
+  c.fillStyle='#8a4b2a';c.fillRect(0,0,W,H);c.fillStyle='#a85d34';for(let y=0;y<H;y+=10)for(let x=(y/10)%2?-10:0;x<W;x+=20)c.fillRect(x+1,y+1,18,8);
+  c.fillStyle='#2f7a35';c.fillRect(C,C,W-2*C,H-2*C);for(let y=1;y<N-1;y++){c.fillStyle=y%2?'#33843a':'#2c7432';c.fillRect(C,y*C,W-2*C,C);}// mown stripes
+  let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;
+  for(let i=0;i<260;i++){const x=C+rnd()*(W-2*C),y=C+rnd()*(H-2*C);c.fillStyle=rnd()<.5?'#3f9446':'#276a2d';c.fillRect(x,y,1.5,3);}
+  for(let i=0;i<14;i++){const x=C+rnd()*(W-2*C),y=C+rnd()*(H-2*C);c.fillStyle=rnd()<.5?'#fff':'#ffe45e';for(const[a,b]of[[-2,0],[2,0],[0,-2],[0,2]])c.fillRect(x+a-1,y+b-1,2,2);c.fillStyle='#f5a623';c.fillRect(x-1,y-1,2,2);}
+  c.fillStyle='rgba(0,0,0,.25)';c.fillRect(C,C,W-2*C,3);c.fillRect(C,C,3,H-2*C);
+  for(const k of walls){const[x,y]=k.split(',').map(Number);const X=x*C,Y=y*C;c.fillStyle='rgba(0,0,0,.25)';c.fillRect(X+2,Y+3,C,C);c.fillStyle='#1d5a24';c.fillRect(X,Y,C,C);
+   for(const[a,b,r]of[[5,6,6],[14,6,6],[10,12,7],[5,15,5],[15,15,5]]){c.fillStyle='#2f8a36';c.beginPath();c.arc(X+a,Y+b,r,0,Math.PI*2);c.fill();c.fillStyle='#45a84a';c.beginPath();c.arc(X+a-1.5,Y+b-1.5,r*.45,0,Math.PI*2);c.fill();}}}
+ const pos=(s,i,ff)=>{const p=s.sn[i],q=s.prev[i]||s.prev[s.prev.length-1]||p;return[(q[0]+(p[0]-q[0])*ff)*C+C/2,(q[1]+(p[1]-q[1])*ff)*C+C/2];};
+ function drawSnake(c,s,ff){const col=COL[s.i],n=s.sn.length,dead=s.deathT>0&&Math.floor(s.deathT*8)%2;const P=[];for(let i=0;i<n;i++)P.push(pos(s,i,ff));
+  // tail end creeps smoothly towards where the second-to-last segment was
+  const wid=i=>C*(.86-.42*Math.max(0,(i-(n-4))/4));c.lineCap='round';c.lineJoin='round';
+  c.strokeStyle='rgba(0,0,0,.28)';for(let i=n-1;i>0;i--){c.lineWidth=wid(i);c.beginPath();c.moveTo(P[i][0]+2,P[i][1]+3);c.lineTo(P[i-1][0]+2,P[i-1][1]+3);c.stroke();}
+  for(let i=n-1;i>0;i--){c.lineWidth=wid(i);c.strokeStyle=dead?'#fff':col[1];c.beginPath();c.moveTo(P[i][0],P[i][1]);c.lineTo(P[i-1][0],P[i-1][1]);c.stroke();}
+  if(!dead)for(let i=1;i<n;i++)if(i%2===0){c.fillStyle=col[2];const[x,y]=P[i];const r=wid(i)*.22;c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y);c.lineTo(x,y+r);c.lineTo(x-r,y);c.fill();}
+  const[hx,hy]=P[0],d=s.dir,px=-d[1],py=d[0];
+  if(s.tongue>0&&!dead&&s.deathT<=0){const L=7+Math.sin(s.tongue*30)*2;c.strokeStyle='#ff3b5c';c.lineWidth=1.6;c.beginPath();c.moveTo(hx+d[0]*8,hy+d[1]*8);const tx=hx+d[0]*(8+L),ty=hy+d[1]*(8+L);c.lineTo(tx,ty);c.lineTo(tx+d[0]*3+px*2.5,ty+d[1]*3+py*2.5);c.moveTo(tx,ty);c.lineTo(tx+d[0]*3-px*2.5,ty+d[1]*3-py*2.5);c.stroke();}
+  c.fillStyle=dead?'#fff':col[0];c.beginPath();c.ellipse(hx+d[0]*1.5,hy+d[1]*1.5,d[0]?C*.56:C*.48,d[1]?C*.56:C*.48,0,0,Math.PI*2);c.fill();
+  for(const sg of[-1,1]){const ex=hx+d[0]*3+px*4.2*sg,ey=hy+d[1]*3+py*4.2*sg;c.fillStyle='#fff';c.beginPath();c.arc(ex,ey,3.1,0,Math.PI*2);c.fill();c.fillStyle='#121625';
+   if(s.deathT>0){c.fillRect(ex-2,ey-.6,4,1.2);}else{c.beginPath();c.arc(ex+d[0]*1.2,ey+d[1]*1.2,1.7,0,Math.PI*2);c.fill();}}}
+ G.render=ctx=>{const[ox,oy]=FX.offset();ctx.save();ctx.translate(ox,oy);ctx.fillStyle='#5c321c';ctx.fillRect(-20,-20,W+40,H+40);if(!lawn)paintLawn();ctx.drawImage(lawn,0,0);
+  // fruit pops in, then bobs
+  const age=clock-food.born,grow=Math.min(1,age*5);ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(food.x*C+C/2,food.y*C+C-3,6*grow,2.5*grow,0,0,Math.PI*2);ctx.fill();
+  drawFruit(ctx,food.k,food.x*C+C/2,food.y*C+C/2-1+Math.sin(clock*5)*1.2,grow*(1+Math.max(0,.25-age)));
+  if(bug){const k=Math.min(1,bug.mt/.32),bx=(bug.px+(bug.x-bug.px)*k)*C+C/2,by=(bug.py+(bug.y-bug.py)*k)*C+C/2;if(bug.t>2.5||Math.floor(bug.t*8)%2)drawBug(ctx,bx,by,Math.atan2(bug.d[1],bug.d[0]),clock);
+   ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(bx-10,by+12,20,3);ctx.fillStyle='#ff5a5a';ctx.fillRect(bx-10,by+12,20*bug.t/9,3);}
   const f=banner?1:Math.min(1,t/interval());
-  for(const s of S){if(s.out)continue;const ff=s.deathT>0?1:f;
-   s.sn.forEach((p,i)=>{const q=s.prev[i]||s.prev[s.prev.length-1]||p,x=(q[0]+(p[0]-q[0])*ff)*C,y=(q[1]+(p[1]-q[1])*ff)*C;ctx.fillStyle=s.deathT>0&&Math.floor(s.deathT*8)%2?'#fff':i?COL[s.i][1+(i%2)]:COL[s.i][0];ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x+1,y+1,C-2,C-2,6);else ctx.rect(x+1,y+1,C-2,C-2);ctx.fill();});
-   const h=s.sn[0],ph=s.prev[0]||h,hx=(ph[0]+(h[0]-ph[0])*ff)*C,hy=(ph[1]+(h[1]-ph[1])*ff)*C;ctx.fillStyle='#121625';ctx.beginPath();ctx.arc(hx+C/2+s.dir[0]*3-s.dir[1]*4,hy+C/2+s.dir[1]*3-s.dir[0]*4,2.4,0,Math.PI*2);ctx.arc(hx+C/2+s.dir[0]*3+s.dir[1]*4,hy+C/2+s.dir[1]*3+s.dir[0]*4,2.4,0,Math.PI*2);ctx.fill();if(s.i===0&&!(s.deathT>0))AVH(env,ctx,hx+C/2,hy+C/2,C+6);}
-  for(const p of pops){ctx.globalAlpha=Math.min(1,p.t*2);Retro.text(ctx,p.txt,p.x,p.y,1,p.c||'#ffe45e','center');}ctx.globalAlpha=1;
+  for(const s of S){if(s.out)continue;drawSnake(ctx,s,s.deathT>0?1:f);}
+  for(const p of pops){ctx.globalAlpha=Math.min(1,p.t*2);Retro.text(ctx,p.txt,p.x+1,p.y+1,1,'#000','center');Retro.text(ctx,p.txt,p.x,p.y,1,p.c||'#ffe45e','center');}ctx.globalAlpha=1;
   FX.render(ctx);ctx.restore();
-  if(two){Retro.text(ctx,`${(env.names[0]||'P1').slice(0,8)} ${S[0].score}`,8,6,1,'#121625');Retro.text(ctx,`${(env.names[1]||'P2').slice(0,8)} ${S[1].score}`,W-8,6,1,'#121625','right');}
-  else{const s=S[0];Retro.text(ctx,String(s.score),8,6,1,'#121625');Retro.text(ctx,`HI ${Math.max(s.score,env.hi())}`,W-8,6,1,'#121625','right');if(s.combo>1&&clock-s.lastEat<3)Retro.text(ctx,`COMBO X${s.combo}`,W/2,6,1,'#121625','center');}
+  const ink='#ffe9c9';
+  if(two){Retro.text(ctx,`${(env.names[0]||'P1').slice(0,8)} ${S[0].score}`,8,6,1,ink);Retro.text(ctx,`${(env.names[1]||'P2').slice(0,8)} ${S[1].score}`,W-8,6,1,ink,'right');}
+  else{const s=S[0];Retro.text(ctx,String(s.score),8,6,1,ink);Retro.text(ctx,`HI ${Math.max(s.score,env.hi())}`,W-8,6,1,ink,'right');if(s.combo>1&&clock-s.lastEat<3)Retro.text(ctx,`COMBO X${s.combo}`,W/2,6,1,'#ffe45e','center');}
+  // fruit still needed for the next level, as little dots along the bottom wall
+  const got=eaten%PER_LEVEL,dx=14,x0=W/2-(PER_LEVEL-1)*dx/2;Retro.text(ctx,'NEXT LEVEL',x0-14,H-13,1,ink,'right');
+  for(let i=0;i<PER_LEVEL;i++){ctx.fillStyle=i<got?'#7be05a':'rgba(0,0,0,.45)';ctx.beginPath();ctx.arc(x0+i*dx,H-10,4.5,0,Math.PI*2);ctx.fill();}
   drawBanner(ctx,W,H,banner);};
- const legend=[{name:'FOOTBALL',pts:'500',draw:(c,x,y)=>{c.font=`20px ${EMOJI_FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(env.themeEm||'⚽',x,y);}},{name:'GOLD STAR',pts:'3,000',draw:(c,x,y)=>{c.font=`20px ${EMOJI_FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('⭐',x,y);}},
-  {name:'QUICK EATS',pts:'COMBO X5',draw:(c,x,y)=>{for(let i=0;i<5;i++){c.fillStyle=i?'#3cc46a':'#9dff2e';c.fillRect(x+20-i*11,y-5,10,10);}}},{name:'8 FOOTBALLS',pts:'LEVEL UP',draw:(c,x,y)=>{c.fillStyle='#ff8a1c';c.fillRect(x-14,y-7,28,14);c.fillStyle='#c8641e';c.fillRect(x-10,y-3,20,6);}}].map(e=>({...e,color:'#9dff2e'}));
- return Retro.intro(G,{title:'SUPER SNAKE',color:'#9dff2e',sub:two?'2 PLAYERS - DON\'T CRASH INTO YOUR RIVAL':'NEW MAZE EVERY LEVEL',tableTitle:'POINTS',legend,bg:'#0f2a17',hi:env.hi,hint:two?'P1: W A S D   P2: ARROW KEYS':'ARROWS OR SWIPE TO STEER - DON\'T HIT THE WALLS OR YOUR TAIL'});}
+ const fl=k=>(c,x,y)=>drawFruit(c,k,x,y,1.5);
+ const legend=[{name:'APPLE',pts:'500',draw:fl(0)},{name:'CHERRIES',pts:'750',draw:fl(1)},{name:'PEAR',pts:'1,000',draw:fl(2)},{name:'STRAWBERRY',pts:'1,500',draw:fl(3)},
+  {name:'LADYBIRD',pts:'3,000',draw:(c,x,y,tt)=>drawBug(c,x,y,-Math.PI/2,tt||0)},{name:'QUICK EATS',pts:'COMBO X5',draw:(c,x,y)=>{for(let i=0;i<5;i++){c.fillStyle=i?'#f5b82e':'#ffd23f';c.beginPath();c.arc(x+20-i*10,y,5,0,Math.PI*2);c.fill();}}}].map(e=>({...e,color:'#ffd23f'}));
+ return Retro.intro(G,{title:'SUPER SNAKE',color:'#ffd23f',sub:two?'2 PLAYERS - DON\'T CRASH INTO YOUR RIVAL':'A NEW GARDEN EVERY LEVEL',tableTitle:'POINTS',legend,bg:'#1d4d22',hi:env.hi,hint:two?'P1: W A S D   P2: ARROW KEYS':'ARROWS OR SWIPE TO STEER - DON\'T HIT THE HEDGES OR YOUR TAIL'});}
 
-GAME_LIST.push({id:'ladder',name:'Ladder Dash',icon:'🪜',desc:'Climb the girders, jump the rolling barrels, grab the trophy!'},{id:'racer',name:'Turbo Racer',icon:'🏎️',desc:'Race the winding road — dodge traffic, grab coins, use nitro!'},{id:'snake',name:'Super Snake',icon:'🐍',desc:'Eat footballs to grow. Don’t bite your tail!',two:'sim'});
+GAME_LIST.push({id:'ladder',name:'Ladder Dash',icon:'🪜',desc:'Climb the girders, jump the rolling barrels, grab the trophy!'},{id:'racer',name:'Turbo Racer',icon:'🏎️',desc:'Race the winding road — dodge traffic, grab coins, use nitro!'},{id:'snake',name:'Super Snake',icon:'🐍',desc:'Eat the fruit, chase the ladybird and don’t bite your tail!',two:'sim'});
 Object.assign(PADS,{ladder:[['l','r'],['u','d','f']],racer:[['l','r'],['d','u','f']],snake:[['l','r'],['u','d']]});
 Object.assign(GAMES,{ladder:makeLadder,racer:makeRacer,snake:makeSnake});
 
