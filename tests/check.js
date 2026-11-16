@@ -75,14 +75,16 @@ async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(
  await page.keyboard.press('Escape');
  // search: a classic's name finds our game, and picking it highlights the tile
  if(d.w<=700)await page.click('#searchBtn');
- await page.fill('#q','Defender');await page.waitForTimeout(150);
+ await page.fill('#q','planet');await page.waitForTimeout(150);
  const first=await page.$eval('#results [role=option]',b=>b.dataset.id).catch(()=>null);
- ok(first==='guardian',`${tag}: searching "Defender" finds Planet Guardian`,String(first));
+ ok(first==='guardian',`${tag}: searching "planet" finds Planet Guardian`,String(first));
  await page.keyboard.press('Enter');await page.waitForTimeout(500);
  const hit=await page.evaluate(()=>{const t=document.querySelector('.tile.hit');if(!t)return null;const r=t.getBoundingClientRect();return{id:t.id,on:r.top>=-1&&r.bottom<=innerHeight+1};});
  ok(hit&&hit.id==='g-guardian'&&hit.on,`${tag}: the found game is highlighted and on screen`,JSON.stringify(hit));
  ok(await overflow(page)<=1,`${tag}: search not wider than the screen`);
- for(const [t,id] of [['tetris','blocks'],['frogger','hopper'],['pac','maze'],['asteroids','meteor'],['maze','maze']]){const r=await page.evaluate(t=>ARCADE_HOME.find(t)[0],t);ok(r===id,`${tag}: "${t}" finds ${id}`,String(r));}
+ for(const [t,id] of [['snake','snake'],['hop','hopper'],['muncher','maze'],['meteors','meteor'],['brick','bricks']]){const r=await page.evaluate(t=>ARCADE_HOME.find(t)[0],t);ok(r===id,`${tag}: "${t}" finds ${id||'nothing (no classic names in search)'}`,String(r));}
+ // wide games (Planet Guardian) show whole, not a blown-up middle
+ ok(await page.$eval('#g-guardian img.pic',i=>i.classList.contains('wide')&&getComputedStyle(i).objectFit==='contain'),`${tag}: wide game pictures are shown whole`);
  // moving previews play in the tiles on screen
  await page.waitForTimeout(800);const playing=await page.$$eval('.tile video.clip',v=>v.filter(x=>!x.paused&&x.readyState>=2).length);
  ok(playing>=1,`${tag}: game previews are playing`,`${playing} playing`);

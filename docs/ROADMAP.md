@@ -14,9 +14,9 @@
 - **16 Nov 2026**: run 1 (AI: Super Snake → garden game) went live; cost $1.04, 31 steps, 10 min.
   It published straight to `main` because Actions may not open pull requests yet (see below).
 
-- **16 Nov 2026**: AI contract change: optional `inspired_by` (list of classic names) on AI-invented
-  games in `enhanced/games.json`, for search; guard checks it. Classic names for the original games
-  live in `data/aliases.json` (site side), shown only as "like …" in search results.
+- **16 Nov 2026**: search matches names and descriptions only: no commercial game names anywhere
+  (Stuart). AI brief: don't mention commercial titles on the site. (An `inspired_by` field was added and
+  removed the same day.)
 - **16 Nov 2026**: moving previews (recorded clips) instead of stills; the AI version plays on the
   home page, the original plays in the log.
 

@@ -27,9 +27,7 @@ in your journal.
 2. **`enhanced/games.json` is the contract.** Every game is listed there with `id` (lowercase letters,
    digits, hyphens), `name`, `icon` (one emoji), `desc` (one sentence), `play` (a page inside
    `enhanced/`, e.g. `play.html?game=maze`) and `origin` (`"classic"` for the eleven originals,
-   `"ai"` for games you invent, plus `"born": "YYYY-MM-DD"`). For games you invent, add
-   `"inspired_by": ["…"]`: the classic arcade games or genres it is like (used only by the search box,
-   so typing a classic's name finds your game; never shown on the tiles). Keep the ids of existing games, because
+   `"ai"` for games you invent, plus `"born": "YYYY-MM-DD"`). Keep the ids of existing games, because
    the history is keyed on them. You may retire a game by removing it, but say so and say why.
 3. **Every play page must:**
    - set `window.ARCADE = {ready: true, state() {...}}` once the game is on screen. `state()`
@@ -48,7 +46,8 @@ in your journal.
    to the arcade" link is worked out by `host.js` (the `HOME` constant), so keep that logic if you
    rewrite the shell.
 5. **Original work only.** No names, characters, art, music or level layouts copied from commercial
-   games. Genres and mechanics are fine. Family friendly: children play these.
+   games, and don't mention commercial game titles anywhere on the site (descriptions, help, code
+   comments shown to players). Genres and mechanics are fine. Family friendly: children play these.
 6. **Keep scores local.** Use `localStorage` keys starting `retro:enhanced:`.
 
 The workflow records the moving previews (`tools/clips.js`) and the pictures after your run. Don't run

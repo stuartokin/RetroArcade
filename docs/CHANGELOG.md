@@ -2,6 +2,15 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.2.1 — 16 Nov 2026
+
+- Search no longer matches the names of commercial classics (Stuart: "a little too obvious"); names and
+  descriptions only. The alias list and the AI's `inspired_by` field are gone, and the AI's brief now
+  says not to mention commercial titles anywhere on the site.
+- Wide games (Planet Guardian, 800×450) show whole at the top of their tile, card and log picture
+  instead of a blown-up middle third.
+- Rig: wide pictures are shown whole; search checks use our own game names only.
+
 ## 1.2.0 — 16 Nov 2026
 
 - **Moving previews:** every game has a 6-second silent looping clip of it being played
@@ -13,12 +22,9 @@ The AI's changes to the games are logged separately in `data/changes.json` (the 
   - **Evolution log:** shows the original playing next to each change's before and after pictures.
   - **Weekly run:** the workflow re-records clips of the games the AI changed (installs ffmpeg if missing).
 - **Search in the title bar** (🔍 on phones):
-  - matches names, descriptions and the classic each game is like (`data/aliases.json`:
-    "Defender" finds Planet Guardian)
-  - the classic's name only appears as a "like …" hint in the results
+  - matches names and descriptions
   - picking a result highlights the tile (the rest dim) or turns the carousel to it
-- AI contract (see ROADMAP): optional `"inspired_by"` on AI-invented games; the AI is told not to run
-  `tools/clips.js`.
+- AI contract: the AI is told not to run `tools/clips.js`.
 - Wording: "Retro arcade games" instead of "Eleven…", because more will come.
 
 ## 1.1.0 — 16 Nov 2026

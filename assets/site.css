@@ -167,7 +167,6 @@ video.pic.ready{opacity:1}
 .results[hidden]{display:none}
 .results button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:8px;background:none;color:var(--ink);cursor:pointer;font-size:14.5px}
 .results button[aria-selected=true],.results button:hover{background:#262b6a}
-.results small{margin-left:auto;color:var(--mute);font-size:12px;white-space:nowrap}
 .results .none{margin:6px 10px;color:var(--mute);font-size:14px}
 .sbtn{display:none}
 /* phones: a 🔍 button that opens the box full width under the bar */
@@ -187,3 +186,6 @@ video.pic.ready{opacity:1}
 .tile.hit,.card.hit{border-color:var(--gold)!important;animation:hit 1.3s ease-in-out 2}
 @keyframes hit{0%,100%{box-shadow:0 0 0 0 rgba(255,228,94,0)}50%{box-shadow:0 0 0 4px rgba(255,228,94,.85),0 0 40px rgba(255,228,94,.55)}}
 @media (prefers-reduced-motion:reduce){.tile.hit,.card.hit{animation:none;box-shadow:0 0 0 4px rgba(255,228,94,.85)}}
+
+/* wide games (landscape canvas) show whole, at the top, instead of a blown-up middle */
+.tile .pic.wide,.card .pic.wide{object-fit:contain;object-position:center 8%;background:#000}

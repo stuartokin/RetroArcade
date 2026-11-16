@@ -3,12 +3,11 @@
 (async()=>{
  const {esc,fmt,nextRun,load,runsFor}=RA,$=id=>document.getElementById(id),root=document.documentElement;
  let d;try{d=await load();}catch(e){$('tiles').innerHTML='<p class="empty">Couldn\'t load the games. Please refresh.</p>';return;}
- const {orig,enh,runs,clips,aliases}=d,O=new Map(orig.games.map(g=>[g.id,g])),E=new Map(enh.games.map(g=>[g.id,g]));
+ const {orig,enh,runs,clips}=d,O=new Map(orig.games.map(g=>[g.id,g])),E=new Map(enh.games.map(g=>[g.id,g]));
  const ids=[...enh.games.map(g=>g.id),...orig.games.map(g=>g.id).filter(id=>!E.has(id))];
  // the newest picture of each game (runs are newest first)
  const pic=id=>{for(const r of runs)if(r.shots&&r.shots[id])return r.shots[id];return '';};
- const games=ids.map(id=>{const e=E.get(id),o=O.get(id),g=e||o,hist=runsFor(runs,id);return{id,e,o,g,hist,born:!!(e&&e.origin==='ai'),pic:pic(id),clip:((clips&&clips.enhanced)||{})[id]||'',
-  like:[...((e&&e.inspired_by)||[]),...(aliases[id]||[])]};});
+ const games=ids.map(id=>{const e=E.get(id),o=O.get(id),g=e||o,hist=runsFor(runs,id);return{id,e,o,g,hist,born:!!(e&&e.origin==='ai'),pic:pic(id),clip:((clips&&clips.enhanced)||{})[id]||''};});
  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
  // ---------- the ⓘ popover: description and stats ----------
@@ -73,22 +72,21 @@
   tiles.querySelectorAll('video.clip').forEach(v=>run(v,t&&!hidden&&vis.has(v)));
   cards.forEach(c=>{const v=c.querySelector('video.clip');if(v)run(v,!t&&!hidden&&c.classList.contains('front'));});}
  document.addEventListener('visibilitychange',videos);
- document.querySelectorAll('video.clip').forEach(v=>v.addEventListener('playing',()=>v.classList.add('ready')));
+ document.querySelectorAll('video.clip').forEach(v=>{v.addEventListener('playing',()=>v.classList.add('ready'));v.addEventListener('loadedmetadata',()=>v.classList.toggle('wide',v.videoWidth>v.videoHeight*1.05));});
+ const wideImg=i=>i.classList.toggle('wide',i.naturalWidth>i.naturalHeight*1.05);
+ document.querySelectorAll('img.pic').forEach(i=>{if(i.complete&&i.naturalWidth)wideImg(i);else i.addEventListener('load',()=>wideImg(i));});
 
- // ---------- search: by name, description or the classic a game is like ("Defender" finds Planet Guardian) ----------
+ // ---------- search: by name or description ----------
  const q=$('q'),res=$('results'),sbox=$('search'),sbtn=$('searchBtn');let hits=[],sel=0;
- const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+ const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
  function find(t){t=norm(t);if(!t)return[];const words=t.split(' ');
-  return games.map(x=>{const nm=norm(x.g.name),lk=x.like.map(norm),ds=norm(x.g.desc);let sc=0,via='';
-   if(nm.startsWith(t))sc=10;else if(nm.includes(t))sc=8;
-   // a classic's name: whole words first ("pac" → Pac-Man), then anywhere in it
-   const ws=l=>(' '+l).includes(' '+t)||(t.includes(l)&&l.length>3),li=lk.findIndex(ws),lj=li<0?lk.findIndex(l=>l.includes(t)):-1;
-   if(li>=0&&sc<9){sc=Math.max(sc,9);via=x.like[li];}else if(lj>=0&&sc<6){sc=6;via=x.like[lj];}
-   if(!sc&&words.every(w=>nm.includes(w)||ds.includes(w)||lk.some(l=>l.includes(w))))sc=4;
-   if(!sc&&norm(x.id).startsWith(t))sc=5;return{x,sc,via};}).filter(r=>r.sc).sort((a,b)=>b.sc-a.sc).slice(0,6);}
+  return games.map(x=>{const nm=norm(x.g.name),ds=norm(x.g.desc);let sc=0;
+   if(nm.startsWith(t))sc=10;else if((' '+nm).includes(' '+t))sc=9;else if(nm.includes(t))sc=7;
+   else if(words.every(w=>(' '+nm+' '+ds).includes(' '+w)))sc=4;
+   return{x,sc};}).filter(r=>r.sc).sort((a,b)=>b.sc-a.sc).slice(0,6);}
  function list(){hits=find(q.value);sel=0;q.setAttribute('aria-expanded',String(!!hits.length||!!q.value));
   if(!q.value.trim()){res.hidden=true;return;}res.hidden=false;
-  res.innerHTML=hits.length?hits.map((h,i)=>`<button type="button" role="option" id="r-${i}" data-id="${esc(h.x.id)}" aria-selected="${i===sel}"><span class="ico" aria-hidden="true">${esc(h.x.g.icon)}</span><b>${esc(h.x.g.name)}</b>${h.via?`<small>like ${esc(h.via)}</small>`:''}</button>`).join('')
+  res.innerHTML=hits.length?hits.map((h,i)=>`<button type="button" role="option" id="r-${i}" data-id="${esc(h.x.id)}" aria-selected="${i===sel}"><span class="ico" aria-hidden="true">${esc(h.x.g.icon)}</span><b>${esc(h.x.g.name)}</b></button>`).join('')
    :`<p class="none">No game matches “${esc(q.value.trim())}”.</p>`;mark();}
  function mark(){[...res.querySelectorAll('[role=option]')].forEach((b,i)=>b.setAttribute('aria-selected',String(i===sel)));q.setAttribute('aria-activedescendant',hits.length?'r-'+sel:'');}
  function pick(id){res.hidden=true;q.setAttribute('aria-expanded','false');showSearch(false,true);highlight(id);}
