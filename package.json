@@ -1,0 +1,14 @@
+{
+  "name": "retro-arcade",
+  "private": true,
+  "description": "Retro Arcade: original games, an AI-enhanced copy, and the test rig. No build step; the site is static.",
+  "scripts": {
+    "test": "node tests/check.js",
+    "test:quick": "node tests/check.js --quick",
+    "shots": "node tools/shots.js --dir=enhanced --out=tests/out/shots",
+    "serve": "node tests/serve.js 8820"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

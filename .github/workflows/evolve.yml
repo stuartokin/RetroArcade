@@ -1,0 +1,215 @@
+# Retro Arcade — the weekly AI run.
+# Each Sunday morning (or when started by hand) an AI agent (Claude Code) gets the AI-enhanced copy of the
+# games and free rein to improve them or create a new game. Then:
+#   1. a rule check (tools/evolve/guard.mjs): only enhanced/, ai/JOURNAL.md and ai/RUN-REPORT.json may change;
+#   2. the full test rig plays every game on phone, Fold, iPad, laptop and big screens;
+#   3. if both pass: the run is logged (data/changes.json), archived (archive/run-NNN/), photographed,
+#      opened as a pull request labelled "🤖 AI-maintained" and merged automatically;
+#      if either fails: the pull request stays open for Stuart to look at and nothing goes live.
+# Cost: the AI's API use, capped per run by the budget below (default $10). See docs/KNOWLEDGE.md §5.
+# Off switch: automation.json here, or the master in stuartokin.github.io ("paused": true). Manual runs still go ahead.
+name: Evolve the games
+on:
+  schedule:
+    - cron: '17 5 * * 0'       # Sundays 05:17 UTC (off the hour: GitHub delays top-of-hour runs)
+  workflow_dispatch:
+    inputs:
+      focus:
+        description: 'What should the AI work on?'
+        type: choice
+        options: [ai-decides, one-game, all-games, new-game]
+        default: ai-decides
+      game:
+        description: 'For one-game: which game id (e.g. maze). Leave blank to let the AI choose.'
+        required: false
+        default: ''
+      note:
+        description: 'Optional note to the AI (an idea, a request, feedback on last week).'
+        required: false
+        default: ''
+      budget:
+        description: 'Maximum API spend for this run, in US dollars.'
+        required: false
+        default: '10'
+      max_turns:
+        description: 'Maximum number of AI steps.'
+        required: false
+        default: '150'
+permissions:
+  contents: write
+  pull-requests: write
+  pages: write
+concurrency:
+  group: evolve
+  cancel-in-progress: false
+jobs:
+  # ---- Kill switch -------------------------------------------------------
+  # Reads two small files before anything else runs:
+  #   master: stuartokin.github.io/automation.json  (turns off every app)
+  #   local:  automation.json at the top of this repo (turns off this app)
+  # If either says "paused": true, automatic runs (schedule, issues,
+  # comments, other workflows) stop here and change nothing. Runs started by
+  # hand ("Run workflow") and your own uploads always go ahead.
+  switch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+    steps:
+      - id: check
+        name: Check the kill switches
+        env:
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          flag() {
+            local v
+            v=$(curl -fsSL --retry 2 -H 'Cache-Control: no-cache' "$1?t=$(date +%s)" 2>/dev/null | jq -r '.paused' 2>/dev/null) || v=""
+            case "$v" in true|false) echo "$v" ;; null) echo false ;; *) echo unknown ;; esac
+          }
+          MASTER=$(flag "https://raw.githubusercontent.com/stuartokin/stuartokin.github.io/main/automation.json")
+          LOCAL=$(flag "https://raw.githubusercontent.com/$REPO/$SHA/automation.json")
+          echo "Master switch (stuartokin.github.io/automation.json): paused = $MASTER"
+          echo "This repo's switch (automation.json): paused = $LOCAL"
+          GO=true
+          if [ "$EVENT" = "workflow_dispatch" ] || [ "$EVENT" = "push" ]; then
+            if [ "$MASTER" = "true" ] || [ "$LOCAL" = "true" ]; then
+              echo "::notice title=Kill switch::A switch is set to paused, but this run was started by hand or by an upload, so it goes ahead."
+            fi
+          elif [ "$MASTER" = "true" ]; then
+            GO=false
+            echo "::notice title=Kill switch::Paused by master switch (stuartokin.github.io/automation.json). Nothing was changed."
+          elif [ "$LOCAL" = "true" ]; then
+            GO=false
+            echo "::notice title=Kill switch::Paused by this repo's switch (automation.json). Nothing was changed."
+          fi
+          if [ "$MASTER" = "unknown" ]; then
+            echo "::warning title=Kill switch::Could not read the master switch, so carrying on as normal."
+          fi
+          echo "go=$GO" >> "$GITHUB_OUTPUT"
+          echo "Kill switch: master paused = $MASTER, this repo paused = $LOCAL, event = $EVENT, go = $GO" >> "$GITHUB_STEP_SUMMARY"
+
+  evolve:
+    needs: switch
+    if: needs.switch.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      FOCUS: ${{ inputs.focus || 'ai-decides' }}
+      GAME: ${{ inputs.game }}
+      NOTE: ${{ inputs.note }}
+      BUDGET: ${{ inputs.budget || '10' }}
+      MAX_TURNS: ${{ inputs.max_turns || '150' }}
+      MODEL: ${{ vars.EVOLVE_MODEL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false   # the AI never holds a GitHub token
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the test rig (Playwright + Chromium) and Claude Code
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npm install -g @anthropic-ai/claude-code
+      - name: Check the API key is set
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error title=No API key::Add ANTHROPIC_API_KEY under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+      - name: Prepare this run
+        id: prep
+        run: |
+          echo "BASE=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          node tools/evolve/prepare.mjs "$RUNNER_TEMP/prompt.md"
+      - name: Let the AI work
+        id: ai
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ARGS=(-p "$(cat "$RUNNER_TEMP/prompt.md")" --output-format stream-json --verbose
+                --max-turns "$MAX_TURNS" --max-budget-usd "$BUDGET" --dangerously-skip-permissions)
+          if [ -n "$MODEL" ]; then ARGS+=(--model "$MODEL"); fi
+          set -o pipefail
+          claude "${ARGS[@]}" | tee "$RUNNER_TEMP/ai-log.jsonl" | node tools/evolve/narrate.mjs
+          grep '"type":"result"' "$RUNNER_TEMP/ai-log.jsonl" | tail -1 > "$RUNNER_TEMP/result.json" || true
+      - name: Keep the AI's transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-transcript-run-${{ steps.prep.outputs.RUN3 }}
+          path: ${{ runner.temp }}/ai-log.jsonl
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Rule check
+        id: guard
+        continue-on-error: true
+        run: node tools/evolve/guard.mjs "${{ steps.prep.outputs.BASE }}"
+      - name: Test rig (every game, every device)
+        id: tests
+        if: steps.guard.outcome == 'success'
+        continue-on-error: true
+        run: node tests/check.js
+      - name: Record the run (log, archive, pictures)
+        if: steps.guard.outcome == 'success' && steps.tests.outcome == 'success'
+        env:
+          RUN: ${{ steps.prep.outputs.RUN }}
+          RUN3: ${{ steps.prep.outputs.RUN3 }}
+          DATE: ${{ steps.prep.outputs.DATE }}
+          RESULT_FILE: ${{ runner.temp }}/result.json
+          PR_BODY: ${{ runner.temp }}/pr-body.md
+          ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node tools/evolve/finalise.mjs
+      - name: Commit, open the pull request and merge it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ steps.prep.outputs.RUN }}
+          RUN3: ${{ steps.prep.outputs.RUN3 }}
+          BASE: ${{ steps.prep.outputs.BASE }}
+          PASSED: ${{ steps.guard.outcome == 'success' && steps.tests.outcome == 'success' }}
+          PR_BODY: ${{ runner.temp }}/pr-body.md
+        run: |
+          git config user.name "Retro Arcade AI"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          # one tidy commit, whatever the AI did with git along the way
+          git reset --soft "$BASE"
+          git add -A -- . ':!tests/out' ':!node_modules'
+          if git diff --cached --quiet; then echo "::warning::The AI changed nothing."; exit 0; fi
+          BRANCH="ai/run-$RUN3"
+          TITLE="🤖 AI run $RUN — $(jq -r '.title // "no report"' ai/RUN-REPORT.json 2>/dev/null || echo 'no report')"
+          git checkout -b "$BRANCH"
+          git commit -q -m "$TITLE" -m "Weekly evolve run $RUN. See data/changes.json for the full entry."
+          git push -f origin "$BRANCH"
+          gh label create "🤖 AI-maintained" --color 7b2ff7 --description "Changed by the weekly AI run" --force -R "$REPO" || true
+          if [ "$PASSED" != "true" ]; then
+            printf '## ⚠️ Run %s did not pass the checks\n\nNothing has gone live. Rule check: %s. Tests: %s.\nSee the run log: %s\n\nMerge only if you are happy; otherwise close this.\n' \
+              "$RUN" "${{ steps.guard.outcome }}" "${{ steps.tests.outcome || 'not run' }}" \
+              "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > "$RUNNER_TEMP/fail.md"
+            gh pr create -R "$REPO" --base main --head "$BRANCH" --title "⚠️ $TITLE (failed checks)" --body-file "$RUNNER_TEMP/fail.md" --label "🤖 AI-maintained" || true
+            echo "::error title=Run $RUN held back::The AI's changes didn't pass the checks, so nothing went live. They wait in branch $BRANCH."
+            exit 1
+          fi
+          if URL=$(gh pr create -R "$REPO" --base main --head "$BRANCH" --title "$TITLE" --body-file "$PR_BODY" --label "🤖 AI-maintained"); then
+            node tools/evolve/finalise.mjs --pr="$URL"
+            git commit -q -am "Run $RUN: link the pull request in the log"
+            git push origin "$BRANCH"
+            gh pr merge "$URL" --squash --delete-branch -R "$REPO"
+          else
+            # pull requests from Actions not allowed in Settings: publish straight to main instead
+            echo "::warning::Couldn't open a pull request (check Settings → Actions → 'Allow GitHub Actions to create and approve pull requests'). Publishing straight to main."
+            git push origin "HEAD:main"
+          fi
+      - name: Republish the site
+        if: steps.guard.outcome == 'success' && steps.tests.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || echo "Pages will rebuild on its own"

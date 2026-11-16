@@ -1,0 +1,88 @@
+/* Retro Arcade — home page and evolution log. Theme tokens first. */
+:root{--bg:#07081a;--bg2:#0d1030;--panel:#12153a;--panel2:#181c4a;--line:#2a2f63;--ink:#eef0ff;--mute:#a3abd3;--neon:#3fe0ff;--pink:#ff4fd8;--gold:#ffe45e;--green:#3cff6a;--violet:#7b2ff7;
+  --pixel:"Press Start 2P",ui-monospace,monospace;--r:16px}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:
+  radial-gradient(1200px 600px at 15% -10%,rgba(123,47,247,.28),transparent 60%),
+  radial-gradient(900px 500px at 100% 0%,rgba(63,224,255,.16),transparent 60%),var(--bg);min-height:100vh;overflow-x:hidden}
+a{color:var(--neon)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;font-weight:650;font-size:15px;cursor:pointer;line-height:1.2}
+.btn:hover{border-color:var(--neon)}
+.btn.neon{background:linear-gradient(90deg,#1aa7c9,#3fe0ff);color:#00121a;border:0}
+.btn.ai{background:linear-gradient(90deg,var(--violet),var(--pink));color:#fff;border:0}
+.btn.ghost{background:transparent}
+.btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+.hero{max-width:1180px;margin:0 auto;padding:40px 20px 18px}
+.hero.small{padding-top:18px}
+.back{display:inline-block;margin-bottom:10px;font-weight:700;text-decoration:none}
+.logo{font-family:var(--pixel);font-weight:400;font-size:clamp(26px,6vw,56px);line-height:1.15;margin:0 0 16px;letter-spacing:.02em;text-shadow:4px 4px 0 rgba(0,0,0,.55)}
+.logo span:first-child{color:var(--neon)}.logo span:last-child{color:var(--pink)}
+.logo.sm{font-size:clamp(20px,4.4vw,36px)}
+.lede{max-width:780px;color:var(--mute);font-size:17px;margin:0 0 18px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-width:0}
+.stat small{display:block;color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stat b{font-size:17px}
+.links{display:flex;flex-wrap:wrap;gap:10px}
+main{max-width:1180px;margin:0 auto;padding:10px 20px 30px}
+.loading{color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.tile{position:relative;display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0;transition:border-color .15s,transform .15s}
+.tile:hover{border-color:#4650a8;transform:translateY(-2px)}
+.tile .ico{font-size:40px;line-height:1}
+.tile h2{margin:0;font-size:20px}
+.tile p.d{margin:0;color:var(--mute);font-size:14.5px;flex:1}
+.tile .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.tile .acts .btn{flex:1 1 120px;justify-content:center}
+.tile .hist{font-size:13px;color:var(--mute);border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
+.tile .hist a{text-decoration:none}
+.badge{position:absolute;top:12px;right:12px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:#2a2f63;color:#cfd6ff}
+.badge.new{background:linear-gradient(90deg,var(--violet),var(--pink));color:#fff}
+.badge.chg{background:rgba(60,255,106,.14);color:var(--green)}
+.badge.gone{background:#3b2020;color:#ffb3b3}
+.how{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px}
+.how h2{margin-top:0}
+.how li{margin:6px 0}
+.foot{max-width:1180px;margin:0 auto;padding:10px 20px 40px;color:var(--mute);font-size:14px}
+.foot .disc{font-style:italic}
+.foot .ver{font-size:12px;opacity:.75}
+/* evolution log */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--neon);color:#00121a;border-color:var(--neon);font-weight:700}
+.log{display:flex;flex-direction:column;gap:18px}
+.run{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;min-width:0}
+.run.failed{border-color:#7a3030}
+.rhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:14px;color:var(--mute)}
+.rnum{font-family:var(--pixel);font-size:12px;color:var(--gold)}
+.kind{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:#2a2f63;color:#cfd6ff}
+.kind.new-game{background:linear-gradient(90deg,var(--violet),var(--pink));color:#fff}
+.kind.baseline{background:#1f3a2a;color:var(--green)}
+.run h2{margin:8px 0 6px;font-size:21px}
+.run>p{margin:0 0 10px;color:#d5daf5}
+.gc{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px}
+.gc h3{margin:0 0 6px;font-size:17px}
+.gc ul{margin:0 0 8px;padding-left:20px}
+.gc li{margin:3px 0}
+.gc .why{margin:0 0 10px;color:var(--mute)}
+.gc .why b{color:var(--ink)}
+.shots{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.shots figure{margin:0;flex:0 1 220px;min-width:0}
+.shots img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#000}
+.shots figcaption{font-size:12px;color:var(--mute);margin-top:3px}
+.shots.start figure{flex:0 1 150px}
+@media (max-width:560px){.shots.start figure{flex:1 1 28%}}
+.shots .arrow{font-size:22px;color:var(--mute)}
+.gc .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.gc .acts .btn{font-size:14px;padding:7px 11px}
+.run details{margin-top:12px;color:var(--mute);font-size:14px}
+.run details summary{cursor:pointer;color:var(--ink)}
+.run .meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:14px}
+.empty{color:var(--mute)}
+@media (max-width:560px){
+  .hero{padding:26px 16px 12px}main,.foot{padding-left:16px;padding-right:16px}
+  .run{padding:14px}.shots figure{flex:1 1 40%}
+  .lede{font-size:16px}
+}

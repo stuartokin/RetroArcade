@@ -1,0 +1,29 @@
+{
+ "about": "One entry per weekly AI run. Written by the evolve workflow from the AI's report (ai/RUN-REPORT.json); not edited by hand.",
+ "runs": [
+  {
+   "run": 0,
+   "date": "2026-11-16",
+   "kind": "baseline",
+   "status": "live",
+   "title": "The starting line",
+   "summary": "Eleven original arcade games, taken from Stuart's ApolloMaths secret arcade with their classic look. The AI-enhanced copy starts out identical to the originals; from here on, every change it gets is the AI's own.",
+   "changes": [],
+   "new_games": [],
+   "shots": {
+    "invaders": "media/runs/000/invaders.jpg",
+    "maze": "media/runs/000/maze.jpg",
+    "meteor": "media/runs/000/meteor.jpg",
+    "guardian": "media/runs/000/guardian.jpg",
+    "ladder": "media/runs/000/ladder.jpg",
+    "racer": "media/runs/000/racer.jpg",
+    "snake": "media/runs/000/snake.jpg",
+    "pinball": "media/runs/000/pinball.jpg",
+    "bricks": "media/runs/000/bricks.jpg",
+    "hopper": "media/runs/000/hopper.jpg",
+    "blocks": "media/runs/000/blocks.jpg"
+   },
+   "archive": null
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+# Runs the test rig on every push to main and every pull request (the AI's own runs test themselves first).
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  rig:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/check.js
+      - if: always()
+        run: cat tests/out/last-run.txt >> "$GITHUB_STEP_SUMMARY" || true

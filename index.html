@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07081a">
+<title>Retro Arcade — an AI evolution experiment</title>
+<meta name="description" content="Eleven retro arcade games. Every week an AI gets free rein to improve them or invent new ones. Play the originals, play the AI's versions, and see every change.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=1">
+</head>
+<body>
+<header class="hero">
+  <h1 class="logo"><span>RETRO</span> <span>ARCADE</span></h1>
+  <p class="lede">Eleven retro arcade games, and an experiment. Every week an AI gets free rein to improve them —
+    modernise them, rework them, or invent a brand-new game. Play each original next to the AI's latest version, and see exactly what changed and when.</p>
+  <div class="stats" id="stats" aria-live="polite"></div>
+  <nav class="links"><a class="btn neon" href="evolution.html">📜 Evolution log</a><a class="btn" href="#how">How it works</a></nav>
+</header>
+<main>
+  <section class="grid" id="grid" aria-label="Games"><p class="loading">Loading the games…</p></section>
+  <section class="how" id="how">
+    <h2>How it works</h2>
+    <ol>
+      <li><b>Original</b> is each game as it started: frozen, never touched by the AI.</li>
+      <li><b>AI-enhanced</b> began as an identical copy. Every Sunday morning an AI agent (Claude, by Anthropic) is given the whole copy and no brief beyond
+        “make these games better, your way”. It decides whether to polish one game, rework several, modernise everything or create a new game.</li>
+      <li>Before anything goes live, an automatic test rig plays every game on phone, foldable, tablet and laptop screens. If anything breaks, the change waits for a human.</li>
+      <li>Every run is written up in the <a href="evolution.html">evolution log</a>: what changed in each game, why the AI chose it, before-and-after pictures, and a playable copy of that week's version.</li>
+    </ol>
+    <p>Scores are kept on this device only. Nothing is sent anywhere.</p>
+  </section>
+</main>
+<footer class="foot">
+  <p>By <b>Stuart Okin</b>. Part of <a href="https://stuartokin.github.io/">HorizonQ Observatories</a>. All games are original works inspired by classic arcade genres.</p>
+  <p class="disc">Written in a personal capacity and do not represent the position of any organisation I am engaged with.</p>
+  <p class="ver" id="ver"></p>
+</footer>
+<script src="assets/common.js?v=1"></script>
+<script src="assets/home.js?v=1"></script>
+</body>
+</html>

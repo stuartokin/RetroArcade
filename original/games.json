@@ -1,0 +1,95 @@
+{
+ "side": "original",
+ "label": "Original",
+ "note": "The original games, frozen. Never changed by the AI.",
+ "games": [
+  {
+   "id": "invaders",
+   "name": "Invaders",
+   "icon": "👾",
+   "desc": "Defend the pitch — and a bonus game after every wave.",
+   "play": "play.html?game=invaders",
+   "origin": "classic"
+  },
+  {
+   "id": "maze",
+   "name": "Maze Muncher",
+   "icon": "🟡",
+   "desc": "Munch every dot. Grab a power dot to chase the monsters!",
+   "play": "play.html?game=maze",
+   "origin": "classic"
+  },
+  {
+   "id": "meteor",
+   "name": "Meteor Storm",
+   "icon": "☄️",
+   "desc": "Rotate, thrust and blast the meteors in deep space.",
+   "play": "play.html?game=meteor",
+   "origin": "classic"
+  },
+  {
+   "id": "guardian",
+   "name": "Planet Guardian",
+   "icon": "🚀",
+   "desc": "Fly over the planet and stop the landers taking people.",
+   "play": "play.html?game=guardian",
+   "origin": "classic"
+  },
+  {
+   "id": "ladder",
+   "name": "Ladder Dash",
+   "icon": "🪜",
+   "desc": "Climb the girders, jump the rolling barrels, grab the trophy!",
+   "play": "play.html?game=ladder",
+   "origin": "classic"
+  },
+  {
+   "id": "racer",
+   "name": "Turbo Racer",
+   "icon": "🏎️",
+   "desc": "Race the winding road — dodge traffic, grab coins, use nitro!",
+   "play": "play.html?game=racer",
+   "origin": "classic"
+  },
+  {
+   "id": "snake",
+   "name": "Super Snake",
+   "icon": "🐍",
+   "desc": "Eat footballs to grow. Don’t bite your tail!",
+   "play": "play.html?game=snake",
+   "origin": "classic"
+  },
+  {
+   "id": "pinball",
+   "name": "Pinball Goal",
+   "icon": "🎱",
+   "desc": "Flip it, spell G-O-A-L and build the multiplier!",
+   "play": "play.html?game=pinball",
+   "origin": "classic"
+  },
+  {
+   "id": "bricks",
+   "name": "Brick Blaster",
+   "icon": "🧱",
+   "desc": "Smash the wall with power-ups — a new wall every level.",
+   "play": "play.html?game=bricks",
+   "origin": "classic"
+  },
+  {
+   "id": "hopper",
+   "name": "Road Hopper",
+   "icon": "🐸",
+   "desc": "Hop across roads and a river into the five homes.",
+   "play": "play.html?game=hopper",
+   "origin": "classic"
+  },
+  {
+   "id": "blocks",
+   "name": "Block Drop",
+   "icon": "🧩",
+   "desc": "Stack, spin and clear lines. 2 players: send junk to your rival!",
+   "play": "play.html?game=blocks",
+   "origin": "classic"
+  }
+ ]
+}
