@@ -908,7 +908,7 @@ function makeBlocks(env){
   if(two&&wells.some(w=>w.dead)){const loser=wells.findIndex(w=>w.dead);wells[1-loser].score+=10000;G.scores=wells.map(w=>w.score);G.score=Math.max(...G.scores);banner={t:2.2,text:`${(env.names[1-loser]||('PLAYER '+(2-loser))).toUpperCase()} WINS!`,color:'cycle',sub:'+10,000 FOR THE WIN',then:()=>G.over=true};}};
  G._dbg=()=>wells.map(w=>({x:w.p&&w.p.x,y:w.p&&w.p.y,score:w.score,dead:w.dead,clear:!!w.clear}));
  G._clear=()=>{const w=wells[0];for(let y=ROWS-4;y<ROWS;y++)w.grid[y]=Array.from({length:COLS},(_,x)=>x===0?-1:3);w.p={k:2,c:[[0,0],[0,1],[0,2],[0,3]],x:0,y:0};};
- function cell(ctx,x,y,s,col,ghost){if(ghost){ctx.strokeStyle=col;ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.strokeRect(x+2,y+2,s-4,s-4);ctx.globalAlpha=1;return;}
+ function cell(ctx,x,y,s,col,ghost){if(ghost){ctx.strokeStyle=col;ctx.globalAlpha=.3+.25*Math.sin(t*5);ctx.lineWidth=2;ctx.strokeRect(x+2,y+2,s-4,s-4);ctx.globalAlpha=1;return;}
   ctx.fillStyle=col;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x+1,y+1,s-2,s-2,5);else ctx.rect(x+1,y+1,s-2,s-2);ctx.fill();ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(x+s*.32,y+s*.32,s*.14,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(x+3,y+s-6,s-6,3);}
  function drawWell(ctx,w){const X=ox(w.i),Y=oy;ctx.fillStyle='rgba(10,14,40,.92)';ctx.fillRect(X,Y,COLS*cs,ROWS*cs);ctx.strokeStyle=two?(w.i?'#ff4fd8':'#3fe0ff'):'#3fe0ff';ctx.lineWidth=3;ctx.strokeRect(X-2,Y-2,COLS*cs+4,ROWS*cs+4);
   ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;for(let x=1;x<COLS;x++){ctx.beginPath();ctx.moveTo(X+x*cs,Y);ctx.lineTo(X+x*cs,Y+ROWS*cs);ctx.stroke();}
@@ -917,6 +917,8 @@ function makeBlocks(env){
   if(w.dead){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(X,Y,COLS*cs,ROWS*cs);Retro.text(ctx,'TOPPED OUT',X+COLS*cs/2,Y+ROWS*cs/2-8,2,'#ff2d55','center');}}
  function drawNext(ctx,w,x,y,s){w.next.slice(0,two?1:3).forEach((k,n)=>{for(const[a,b]of SHAPES[k])cell(ctx,x+a*s,y+n*s*3.2+b*s,s,COLR[k]);});}
  G.render=ctx=>{const[sx,sy]=FX.offset();ctx.save();ctx.translate(sx,sy);const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#14092e');g.addColorStop(1,'#05112b');ctx.fillStyle=g;ctx.fillRect(-20,-20,W+40,H+40);
+  // slowly drifting, twinkling dust behind the wells
+  for(let i=0;i<40;i++){const px=(i*97.3)%W,py=((i*53.7)+t*(6+i%5*3))%H,a=.25+.25*Math.sin(t*2+i);ctx.fillStyle=`rgba(180,200,255,${a.toFixed(2)})`;ctx.fillRect(px,py,i%3?1.5:2.5,i%3?1.5:2.5);}
   for(const w of wells)drawWell(ctx,w);
   if(two){wells.forEach(w=>{const X=ox(w.i),c=w.i?'#ff4fd8':'#3fe0ff';Retro.text(ctx,(env.names[w.i]||'P'+(w.i+1)).slice(0,10),X,8,2,c);Retro.text(ctx,String(w.score),X,30,2,'#fff');Retro.text(ctx,`LINES ${w.lines}`,X+COLS*cs-60,32,1,'#9aa3c7');drawNext(ctx,w,X+COLS*cs-34,6,9);});
    Retro.text(ctx,'VS',W/2,H/2-8,3,'#ffe45e','center');}

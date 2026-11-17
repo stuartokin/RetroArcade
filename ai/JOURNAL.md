@@ -55,3 +55,54 @@ time with no errors. Looked at the title, gameplay, phone layout, ladybird and h
 - Other football leftovers remain: Invaders' penalty bonus round and Pinball's G-O-A-L.
 
 **Next.** Road Hopper or Brick Blaster for a similar polish, or shared background music.
+
+## Run 2 — 2026-11-17
+
+**Plan (written before building; Stuart asked for "control placement for fold").** I took full-page
+pictures of the play page on the folded Fold (344×882), the open Fold (884×1104), the Fold on its
+side (882×344), phones and an iPad. The touch buttons were the weakest part of the arcade:
+- folded: the buttons were squeezed into the bottom corners and wrapped untidily (Planet Guardian
+  had ◀ ▶ sitting above Bomb, with Fire on a line of its own), while a big empty gap sat above them;
+- sideways: ◀ and ▶ were stacked on top of each other in the top-left corner, far from the thumb;
+- open Fold / iPad: small buttons pushed into the bottom corners;
+- movement was split oddly (Maze had ◀ ▶ on the left and ▲ ▼ on the right).
+So this run rebuilds the touch controller in the shell, for every game:
+- a real D-pad for movement that you can slide your thumb around (no lifting to change direction),
+  with diagonals for Planet Guardian only;
+- round action buttons in a thumb cluster, the main one larger and coloured;
+- the shell works out, for each screen and game, whether the buttons go below the game or either
+  side of it (whichever leaves the bigger game, leaning to "either side" when the screen is
+  sideways) and sizes the buttons to the room that is left;
+- a short "AI" badge on narrow screens so the game's name isn't cut off; a slimmer bar on short screens;
+- a tiny buzz on each press on phones that support it.
+
+**What I did.** Built everything in the plan, in the shell only (`enhanced/js/host.js`,
+`enhanced/css/play.css`, `?v=r2` in `play.html`), plus a small Block Drop change in `games.js`.
+- `CTRL` in `host.js` now says, per game, what goes on the D-pad (`'lrud'`, `'lrd'` or `'lr'`) and
+  which action buttons go in the right-hand cluster (first one is the main button). The old `PADS`
+  table in `games.js` is no longer used by the shell (left in place, harmless).
+- The D-pad is one element: the direction is whichever button is nearest the thumb, so sliding
+  works; the middle of a cross is a dead zone that keeps the last direction. Guardian has `diag`.
+- `layout()` (called from `fit()`) measures the space, works out the game's size with the buttons
+  below and with them either side, picks the bigger (sideways screens lean to "either side"), and
+  sets `--b` (button size), `--colL`, `--sideW` and `--padH`. Body classes: `touch`, `at-bottom` /
+  `at-sides`, `solo` (no action buttons: maze, snake, hopper).
+- Block Drop: drifting, twinkling dust behind the well and a pulsing landing guide.
+
+**Gotcha.** I first called the layout classes `side` and `bottom`. The page already has a `.side`
+style (the "AI-enhanced" badge), so the whole page turned into a giant rounded badge with capital
+letters. Renamed to `at-sides` / `at-bottom`. Check class names against `play.css` before using them.
+
+**Noticed.**
+- The rig's "picture is moving" check could catch Block Drop standing still between steps at
+  level 1 (a piece falls every 0.8 s; the pictures are 350 ms apart). It used to pass partly by
+  luck of button order. The new background motion fixes the real problem: the screen looked frozen.
+- The full rig failed "Invaders @4k starts from a key press" twice (the untouched copy passed).
+  Cause: `Retro.intro` only starts on a fresh press seen across two frames (`held` starts true), and
+  on a 4K screen Space and Enter could both arrive before the first slow frame. Fixed in the shell:
+  Space/Enter on a start screen calls `game.tap()` at once. Full rig then 1,255/1,255.
+- On the folded Fold upright, wide games (Guardian, Meteor) still leave empty bands above and below
+  the game: the screen is simply much taller than the game. The buttons are width-limited there.
+
+**Next.** A left-handed swap (D-pad on the right) remembered per device, perhaps a choice of button
+size. Then back to a game: Road Hopper or Brick Blaster polish, or shared background music.

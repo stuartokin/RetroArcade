@@ -14,6 +14,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offse
 .who b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .side{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;white-space:nowrap;background:#2a2f63;color:#cfd6ff}
 .side.enhanced{background:linear-gradient(90deg,#7b2ff7,#ff4fd8);color:#fff}
+.side .s{display:none}
+@media (max-width:420px){.side .l{display:none}.side .s{display:inline}}
 .side.past{background:#5a4a12;color:var(--gold)}
 .hud{display:flex;gap:12px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--mute)}
 .hud b{color:var(--ink)}
@@ -23,22 +25,40 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offse
 .pad{display:none}
 .help{grid-area:help;margin:0;padding:4px 10px 8px;text-align:center;color:var(--mute);font-size:13px}
 .missing{text-align:center}.missing a{color:var(--neon)}
-/* touch screens: show the buttons */
-@media (pointer:coarse){
-  body{grid-template-areas:"bar bar" "stage stage" "padL padR";grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-  .help{display:none}
-  .pad{display:flex;flex-wrap:wrap;gap:8px;padding:8px 10px 12px;align-content:center;user-select:none;-webkit-user-select:none;touch-action:none}
-  #padL{grid-area:padL;justify-content:flex-start}#padR{grid-area:padR;justify-content:flex-end}
-  .pad button{min-width:64px;min-height:56px;font-size:17px;font-weight:700;border-radius:14px;background:#1a1e48;border:2px solid #3a4190;justify-content:center;touch-action:none}
-  .pad button.on{background:#3a4190;border-color:var(--neon)}
-  .hud{gap:8px;font-size:13px}
-  .bar .lbl{display:none}
-}
-/* sideways phones: buttons either side of the game */
-@media (pointer:coarse) and (orientation:landscape) and (max-height:600px){
-  body{grid-template-areas:"bar bar bar" "padL stage padR";grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr)}
-  .pad{flex-direction:column;flex-wrap:nowrap;justify-content:center;padding:6px;max-width:160px}
-  .pad button{min-width:70px;min-height:48px}
+/* touch screens: a controller. The shell (host.js layout()) puts it below the game ("bottom") or either
+   side of it ("side"), whichever leaves the bigger game, and sets --b, the button size. */
+body.touch{grid-template-areas:"bar bar" "stage stage" "padL padR";grid-template-columns:minmax(0,var(--colL,1fr)) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) var(--padH,190px)}
+body.touch .help{display:none}
+body.touch .hud{gap:8px;font-size:13px}
+body.touch .bar .lbl{display:none}
+body.touch .pad{display:flex;align-items:center;min-width:0;min-height:0;padding:6px 8px 14px;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
+body.touch #padL{grid-area:padL;justify-content:flex-start}
+body.touch #padR{grid-area:padR;justify-content:flex-end}
+body.touch.solo{grid-template-areas:"bar" "stage" "padL";grid-template-columns:minmax(0,1fr)}
+body.touch.solo #padL{justify-content:center}
+body.touch.solo #padR{display:none}
+body.touch.at-sides{grid-template-areas:"bar bar bar" "padL stage padR";grid-template-columns:var(--sideW,170px) minmax(0,1fr) var(--sideW,170px);grid-template-rows:auto minmax(0,1fr)}
+body.touch.at-sides .pad{justify-content:center;padding:4px 6px 8px}
+body.touch.at-sides.solo #padR{display:flex}
+.dpad,.acts{position:relative;flex:none}
+.pad button{position:absolute;padding:0;margin:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  color:#e8ecff;font-weight:800;line-height:1;touch-action:none;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(#262c66,#161a44);border:2px solid #4a52b0;box-shadow:0 4px 0 #0b0d26,0 0 14px rgba(63,224,255,.08);transition:transform .05s,box-shadow .05s}
+.pad button .ic{font-size:calc(var(--b,56px)*.36);pointer-events:none}
+.pad button .tx{font-size:clamp(9px,calc(var(--b,56px)*.2),15px);letter-spacing:.02em;pointer-events:none;color:#cfd6ff;white-space:nowrap}
+.pad button.dir{border-radius:calc(var(--b,56px)*.22)}
+.pad button.act{border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a3f8a,#1b1f52 70%);border-color:#6a62d8}
+.pad button.act.main{background:radial-gradient(circle at 35% 30%,#ff7ae3,#b0249a 70%);border-color:#ff9cec;box-shadow:0 4px 0 #4a0b40,0 0 18px rgba(255,79,216,.25)}
+.pad button.act.main .tx{color:#fff}
+.pad button.on{transform:translateY(3px);box-shadow:0 1px 0 #0b0d26,0 0 18px rgba(63,224,255,.45);border-color:var(--neon);background:#3a4190}
+.pad button.act.main.on{background:#ff4fd8}
+.dpad .hub{position:absolute;background:#161a44;border-left:2px solid #4a52b0;border-right:2px solid #4a52b0;pointer-events:none}
+.dpad .hub::after{content:"";position:absolute;inset:30%;border-radius:50%;background:#0b0d26}
+.pad button:hover{border-color:var(--neon)}
+/* short screens (phones on their side): a slimmer bar leaves more room for the game */
+@media (max-height:500px){
+  .bar{padding:3px 8px}
+  .ctl button{min-height:30px;padding:3px 8px}
 }
 /* narrow screens: tighten the bar */
 @media (max-width:560px){

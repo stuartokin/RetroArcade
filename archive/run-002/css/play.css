@@ -1,0 +1,80 @@
+/* Retro Arcade — the game page. Bar at the top, the game as big as fits, touch buttons on touch screens
+   (below the game when upright, either side of it when sideways). */
+:root{--bg:#07081a;--panel:#11142e;--line:#2a2f63;--ink:#eef0ff;--mute:#9aa3c7;--neon:#3fe0ff;--pink:#ff4fd8;--gold:#ffe45e;--green:#3cff6a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+body{display:grid;height:100dvh;width:100vw;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"bar" "stage" "pads" "help";
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,.btn{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 11px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;min-height:36px}
+button:hover,.btn:hover{border-color:var(--neon)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.bar{grid-area:bar;display:flex;align-items:center;gap:10px;padding:6px 10px;background:linear-gradient(#11143a,#0a0c24);border-bottom:1px solid var(--line);min-width:0}
+.bar a.home{color:var(--neon);text-decoration:none;font-weight:700;white-space:nowrap}
+.who{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto}
+.who b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:99px;white-space:nowrap;background:#2a2f63;color:#cfd6ff}
+.side.enhanced{background:linear-gradient(90deg,#7b2ff7,#ff4fd8);color:#fff}
+.side .s{display:none}
+@media (max-width:420px){.side .l{display:none}.side .s{display:inline}}
+.side.past{background:#5a4a12;color:var(--gold)}
+.hud{display:flex;gap:12px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--mute)}
+.hud b{color:var(--ink)}
+.ctl{display:flex;gap:6px}
+.stage{grid-area:stage;display:flex;align-items:center;justify-content:center;min-height:0;min-width:0;overflow:hidden}
+#cv{display:block;background:#000;border:2px solid #64d9f5;border-radius:8px;touch-action:none;box-shadow:0 0 28px rgba(63,224,255,.18)}
+.pad{display:none}
+.help{grid-area:help;margin:0;padding:4px 10px 8px;text-align:center;color:var(--mute);font-size:13px}
+.missing{text-align:center}.missing a{color:var(--neon)}
+/* touch screens: a controller. The shell (host.js layout()) puts it below the game ("bottom") or either
+   side of it ("side"), whichever leaves the bigger game, and sets --b, the button size. */
+body.touch{grid-template-areas:"bar bar" "stage stage" "padL padR";grid-template-columns:minmax(0,var(--colL,1fr)) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) var(--padH,190px)}
+body.touch .help{display:none}
+body.touch .hud{gap:8px;font-size:13px}
+body.touch .bar .lbl{display:none}
+body.touch .pad{display:flex;align-items:center;min-width:0;min-height:0;padding:6px 8px 14px;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
+body.touch #padL{grid-area:padL;justify-content:flex-start}
+body.touch #padR{grid-area:padR;justify-content:flex-end}
+body.touch.solo{grid-template-areas:"bar" "stage" "padL";grid-template-columns:minmax(0,1fr)}
+body.touch.solo #padL{justify-content:center}
+body.touch.solo #padR{display:none}
+body.touch.at-sides{grid-template-areas:"bar bar bar" "padL stage padR";grid-template-columns:var(--sideW,170px) minmax(0,1fr) var(--sideW,170px);grid-template-rows:auto minmax(0,1fr)}
+body.touch.at-sides .pad{justify-content:center;padding:4px 6px 8px}
+body.touch.at-sides.solo #padR{display:flex}
+.dpad,.acts{position:relative;flex:none}
+.pad button{position:absolute;padding:0;margin:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  color:#e8ecff;font-weight:800;line-height:1;touch-action:none;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(#262c66,#161a44);border:2px solid #4a52b0;box-shadow:0 4px 0 #0b0d26,0 0 14px rgba(63,224,255,.08);transition:transform .05s,box-shadow .05s}
+.pad button .ic{font-size:calc(var(--b,56px)*.36);pointer-events:none}
+.pad button .tx{font-size:clamp(9px,calc(var(--b,56px)*.2),15px);letter-spacing:.02em;pointer-events:none;color:#cfd6ff;white-space:nowrap}
+.pad button.dir{border-radius:calc(var(--b,56px)*.22)}
+.pad button.act{border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a3f8a,#1b1f52 70%);border-color:#6a62d8}
+.pad button.act.main{background:radial-gradient(circle at 35% 30%,#ff7ae3,#b0249a 70%);border-color:#ff9cec;box-shadow:0 4px 0 #4a0b40,0 0 18px rgba(255,79,216,.25)}
+.pad button.act.main .tx{color:#fff}
+.pad button.on{transform:translateY(3px);box-shadow:0 1px 0 #0b0d26,0 0 18px rgba(63,224,255,.45);border-color:var(--neon);background:#3a4190}
+.pad button.act.main.on{background:#ff4fd8}
+.dpad .hub{position:absolute;background:#161a44;border-left:2px solid #4a52b0;border-right:2px solid #4a52b0;pointer-events:none}
+.dpad .hub::after{content:"";position:absolute;inset:30%;border-radius:50%;background:#0b0d26}
+.pad button:hover{border-color:var(--neon)}
+/* short screens (phones on their side): a slimmer bar leaves more room for the game */
+@media (max-height:500px){
+  .bar{padding:3px 8px}
+  .ctl button{min-height:30px;padding:3px 8px}
+}
+/* narrow screens: tighten the bar */
+@media (max-width:560px){
+  .bar{gap:6px;padding:5px 6px;flex-wrap:wrap}
+  .who{order:0;flex:1 1 0}
+  .ctl{order:1}
+  .hud{order:2;flex:1 1 100%;justify-content:center;font-size:12px}
+  .ctl button{padding:4px 8px;min-height:32px}
+  .bar .lbl{display:none}
+}
+.over{position:fixed;inset:0;background:rgba(3,4,14,.82);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}
+.over[hidden]{display:none}
+.over .card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px 20px;max-width:380px;width:100%;text-align:center;box-shadow:0 0 40px rgba(255,79,216,.18)}
+.over .big{font-size:48px}.over h2{margin:4px 0 6px}.over .sc b{color:var(--gold)}.over .new{color:var(--green);font-weight:700}
+.over table{margin:10px auto;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.over td,.over th{padding:3px 12px;border-bottom:1px solid var(--line)}.over th{color:var(--mute);font-weight:600}
+.over tr.me td{color:var(--gold);font-weight:700}
+.over .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.over .go{background:linear-gradient(90deg,#1aa7c9,#3fe0ff);color:#00121a;font-weight:800;border:0}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07081a">
+<title>Retro Arcade</title>
+<link rel="stylesheet" href="css/play.css?v=r2">
+<script>window.SIDE={id:'enhanced',label:'AI-enhanced'};</script>
+</head>
+<body>
+<header class="bar">
+  <a class="home" href="../" aria-label="Back to the arcade">◀ <span class="lbl">Arcade</span></a>
+  <div class="who"><b id="gName">…</b><span id="gSide" class="side enhanced">AI-enhanced</span></div>
+  <div class="hud" id="hud" aria-live="off"></div>
+  <div class="ctl">
+    <button type="button" id="btnPause" aria-label="Pause">⏸<span class="lbl"> Pause</span></button>
+    <button type="button" id="btnSound" aria-label="Sound">🔊</button>
+    <button type="button" id="btnFull" aria-label="Full screen">⛶</button>
+  </div>
+</header>
+<div class="pad" id="padL" aria-label="Touch controls"></div>
+<main class="stage" id="stage"><canvas id="cv" aria-label="Game"></canvas></main>
+<div class="pad" id="padR"></div>
+<p class="help" id="help"></p>
+<div class="over" id="over" hidden>
+  <div class="card">
+    <div id="overBody"></div>
+    <div class="acts"><button type="button" id="btnAgain" class="go">🔄 Play again</button><a class="home btn" href="../">🎮 Other games</a></div>
+  </div>
+</div>
+<script src="js/host.js?v=r2"></script>
+<script src="js/retro.js?v=r2"></script>
+<script src="js/games.js?v=r2"></script>
+</body>
+</html>

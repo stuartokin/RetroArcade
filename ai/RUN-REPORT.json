@@ -1,23 +1,103 @@
 {
-  "title": "Super Snake moves into the garden",
-  "summary": "This week I spent the whole run on one game. Super Snake was the plainest of the eleven (a checkerboard, square blocks and a football left over from the maths app), so it now lives in a garden: a smooth golden snake with a face, fruit to eat, a ladybird to chase and hedges to steer round. I also fixed the controls so two quick turns in a row always count, which matters most in a game where one missed key ends your life.",
+  "title": "A proper touch controller: a slide-able D-pad and thumb buttons that fit every screen, Fold included",
+  "summary": "Stuart asked for better control placement on the Samsung Fold, so this week the touch buttons were rebuilt for all eleven games. Movement is now a D-pad you can slide your thumb around, actions are round buttons in a thumb cluster, and the page decides for each screen whether the buttons go below the game or either side of it, whichever leaves the bigger game. Block Drop also gets a little life in its background.",
   "kind": "enhance",
   "changes": [
     {
+      "game": "all",
+      "what": [
+        "New touch controller for every game: a D-pad on the left for moving and round action buttons on the right, with the main button bigger and coloured",
+        "Slide your thumb across the D-pad to change direction without lifting it; the middle of the pad keeps the last direction",
+        "The buttons go below the game or either side of it, whichever leaves the bigger game; on a sideways screen they sit either side, at thumb height",
+        "Buttons grow to use spare room (big on the open Fold and on tablets, never cramped on the folded Fold)",
+        "A tiny buzz on each press, on phones that support it (off when the sound is off)",
+        "On narrow screens the 'AI-enhanced' badge shortens to 'AI' so the game's name fits; a slimmer top bar on short, sideways screens",
+        "Space or Enter on a game's start screen now starts it straight away, instead of waiting for the next frame (which could miss the press on very large screens)"
+      ],
+      "why": "On the folded Fold the buttons were squeezed into the bottom corners and wrapped untidily, sideways they were stacked in the top corner away from the thumbs, and movement was split across both sides of the screen in some games."
+    },
+    {
+      "game": "maze",
+      "what": [
+        "Movement on one four-way D-pad instead of left/right on one side and up/down on the other"
+      ],
+      "why": "Steering a maze is much easier with one thumb on a cross."
+    },
+    {
       "game": "snake",
       "what": [
-        "Quick double turns now always work: up to three key presses or swipes are queued, so turning twice inside one step is no longer lost",
-        "Four kinds of fruit, drawn in the game, replace the football: apple 500, cherries 750, pear 1,000 and the rarer strawberry 1,500 (times the level)",
-        "The gold star is now a ladybird that crawls about and scurries away when you get close; catch it for 3,000 (times the level) before its timer runs out",
-        "New look: a mown lawn with daisies, a brick garden wall, leafy hedges as obstacles, and a smooth tapered snake with eyes and a flicking tongue",
-        "A row of dots along the bottom shows how many fruit are left before the next level",
-        "Little jingles for eating fruit and for reaching a new level; new title screen and description"
+        "Movement on one four-way D-pad instead of being split across both sides"
       ],
-      "why": "It was the least polished game and its football theme no longer fitted the arcade. In Snake, control is everything, so the turn queue is the change players will feel most; the garden, the fruit and a moving target make it nicer to look at and give a reason to take risks."
+      "why": "Quick turns are easier when all four directions are under one thumb."
+    },
+    {
+      "game": "hopper",
+      "what": [
+        "Movement on one four-way D-pad instead of being split across both sides"
+      ],
+      "why": "Hopping is one direction at a time, so one cross fits it best."
+    },
+    {
+      "game": "guardian",
+      "what": [
+        "Four-way D-pad that also gives diagonals, so you can climb and fly forward at once",
+        "Fire and Bomb as a pair of round buttons"
+      ],
+      "why": "Flying needs two directions together; before, up/down and left/right were on opposite sides."
+    },
+    {
+      "game": "ladder",
+      "what": [
+        "Four-way D-pad for walking and climbing, a big Jump button on the right"
+      ],
+      "why": "Climb and walk were split across both sides before."
+    },
+    {
+      "game": "meteor",
+      "what": [
+        "Two big rotate buttons on the left; Fire, Thrust and Hyperspace in a thumb cluster on the right"
+      ],
+      "why": "Fire is used most, so it is the biggest button where the thumb rests."
+    },
+    {
+      "game": "racer",
+      "what": [
+        "Steering on the left; Go, Brake and Nitro in a thumb cluster on the right, with Go as the main button"
+      ],
+      "why": "Go is held most of the time, so it gets the main spot."
+    },
+    {
+      "game": "invaders",
+      "what": [
+        "Bigger left/right buttons and one large round Fire button"
+      ],
+      "why": "Part of the new controller."
+    },
+    {
+      "game": "bricks",
+      "what": [
+        "Bigger left/right buttons and one large round Serve button"
+      ],
+      "why": "Part of the new controller."
+    },
+    {
+      "game": "pinball",
+      "what": [
+        "Two matching big flipper buttons, one at each side, with Launch beside the right flipper"
+      ],
+      "why": "Flippers should feel like a left hand and a right hand."
+    },
+    {
+      "game": "blocks",
+      "what": [
+        "Left, right and down on a D-pad; Turn as the main button with Drop beside it",
+        "Twinkling, drifting dust behind the well and a softly pulsing landing guide"
+      ],
+      "why": "The screen could sit completely still between steps at the start, which felt lifeless."
     }
   ],
   "new_games": [],
   "retired_games": [],
-  "tested": "Full test rig on the enhanced side (1,005 checks, all passing, from a 344-pixel folded phone up to 4K, upright and sideways). Looked at the title screen and the game on a desktop window and a phone-sized touch screen (tap to start). Checked the quick double turn with real key presses. Let an autopilot play for four minutes of game time: it reached level 9 with no errors, and I looked at frames from several levels, including the ladybird and the hedge layouts.",
-  "next": "Give another game the same treatment; Road Hopper and Brick Blaster are the next plainest. Background music shared by all the games is also tempting. For Snake, perhaps keep the snake's length between levels so later levels get harder."
+  "tested": "Full test rig on the AI-enhanced side, 1,255 checks all passing (laptop, phone, folded and open Fold, Fold sideways, iPad, large screens). Took full-page pictures of every kind of controller on the folded Fold, the open Fold, the Fold sideways, a phone upright and sideways, and an iPad upright and sideways, and checked that the game and buttons are on screen with nothing overlapping. Drove the D-pad in a browser to check sliding from one direction to another, diagonals in Planet Guardian, and that lifting the thumb lets go.",
+  "next": "A left-handed option to swap the two sides, and controller settings remembered per device. Then back to polishing a game (Road Hopper or Brick Blaster), or shared background music."
 }
