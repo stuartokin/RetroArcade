@@ -34,7 +34,7 @@ const Host=(()=>{
  const KEYMAP={ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r',ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d',' ':'f',Enter:'f',b:'b',B:'b',x:'b',X:'b',Shift:'b'};
  // a quick tap (pressed and released between two frames) is remembered until the game has seen it
  const inp=()=>{const o={};for(const k of ['l','r','u','d','f','b'])o[k]=!!(pad[k]||latch[k]);for(const key in keys)if(keys[key]&&KEYMAP[key])o[KEYMAP[key]]=true;return o;};
- const LABEL={invaders:{l:'◀',r:'▶',f:'● FIRE'},maze:{l:'◀',r:'▶',u:'▲',d:'▼'},meteor:{l:'⟲',r:'⟳',u:'▲ Thrust',f:'● Fire',d:'🌀 Hyper'},guardian:{u:'▲',d:'▼',l:'◀',r:'▶',f:'🔥 Fire',b:'💣 Bomb'},ladder:{l:'◀',r:'▶',u:'▲ Climb',d:'▼',f:'⤴ Jump'},racer:{l:'◀',r:'▶',u:'▲ Go',d:'▼ Brake',f:'🔥 Nitro'},snake:{l:'◀',r:'▶',u:'▲',d:'▼'},pinball:{l:'◀ Flip',r:'Flip ▶',f:'⬆ Launch'},bricks:{l:'◀',r:'▶',f:'● Serve'},hopper:{l:'◀',r:'▶',u:'▲',d:'▼'},blocks:{l:'◀',r:'▶',u:'⟳ Turn',d:'▼',f:'⤓ Drop'}};
+ const LABEL={invaders:{l:'◀',r:'▶',f:'● FIRE'},maze:{l:'◀',r:'▶',u:'▲',d:'▼'},meteor:{l:'⟲',r:'⟳',u:'▲ Thrust',f:'● Fire',d:'🌀 Hyper'},guardian:{u:'▲',d:'▼',l:'◀',r:'▶',f:'🔥 Fire',b:'💣 Bomb'},ladder:{l:'◀',r:'▶',u:'▲ Climb',d:'▼',f:'⤴ Jump'},racer:{l:'◀',r:'▶',u:'▲ Go',d:'▼ Brake',f:'🔥 Nitro'},snake:{l:'◀',r:'▶',u:'▲',d:'▼'},pinball:{l:'◀ Flip',r:'▶ Flip',f:'⬆ Launch'},bricks:{l:'◀',r:'▶',f:'● Serve'},hopper:{l:'◀',r:'▶',u:'▲',d:'▼'},blocks:{l:'◀',r:'▶',u:'⟳ Turn',d:'▼',f:'⤓ Drop'}};
  const HELP={maze:' Or swipe on the maze.',snake:' Or swipe on the game.',hopper:' Or swipe on the game.',bricks:' Or drag on the game.',invaders:' Or drag on the game.'};
 
  // ---------- scores ----------
@@ -56,7 +56,7 @@ const Host=(()=>{
   ctx.restore();hud();raf=requestAnimationFrame(loop);}
 
  // ---------- fitting the game to the screen ----------
- function fit(){if(!cv||!game)return;const st=$('stage'),r=st.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
+ function fit(){if(!cv||!game)return;layout();const st=$('stage'),r=st.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
   const k=Math.max(.1,Math.min((r.width-8)/game.W,(r.height-8)/game.H));
   cv.style.width=Math.floor(game.W*k)+'px';cv.style.height=Math.floor(game.H*k)+'px';cv.width=Math.round(game.W*k*dpr);cv.height=Math.round(game.H*k*dpr);}
  function setFull(on){const el=document.documentElement,fs=document.fullscreenElement||document.webkitFullscreenElement;
@@ -78,13 +78,66 @@ const Host=(()=>{
   $('over').hidden=false;setTimeout(()=>$('btnAgain').focus(),50);}
 
  // ---------- page ----------
- function buildPad(){const groups=(typeof PADS!=='undefined'&&PADS[gameId])||[['l','r'],['f']],lab=LABEL[gameId]||{};
-  $('padL').innerHTML=groups[0].map(k=>`<button type="button" data-pad="${k}" class="pad-${k}">${lab[k]||k}</button>`).join('');
-  $('padR').innerHTML=(groups[1]||[]).map(k=>`<button type="button" data-pad="${k}" class="pad-${k}">${lab[k]||k}</button>`).join('');
-  document.querySelectorAll('.pad').forEach(el=>{
-   el.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-pad]');if(!b)return;e.preventDefault();pad[b.dataset.pad]=true;latch[b.dataset.pad]=true;b.classList.add('on');try{b.setPointerCapture(e.pointerId);}catch(x){}if(game&&game.intro&&game.tap)game.tap();});
-   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,e=>{const b=e.target.closest('[data-pad]');if(b){pad[b.dataset.pad]=false;b.classList.remove('on');}}));
-   el.addEventListener('contextmenu',e=>e.preventDefault());});}
+ // ---------- the touch controller ----------
+ // Movement goes on a D-pad you can slide your thumb around (left); actions are round buttons in a
+ // thumb cluster (right). CTRL lists, per game, the D-pad directions and the action buttons
+ // (first = main button, placed where the thumb rests). diag: the D-pad also gives diagonals.
+ const CTRL={invaders:{L:'lr',R:['f']},maze:{L:'lrud'},meteor:{L:'lr',R:['f','u','d']},guardian:{L:'lrud',R:['f','b'],diag:true},
+  ladder:{L:'lrud',R:['f']},racer:{L:'lr',R:['u','d','f']},snake:{L:'lrud'},pinball:{L:['l'],R:['r','f'],RA:{w:2.15,h:2.05,p:[[.8,.7,1.35],[0,0,.95]]}},bricks:{L:'lr',R:['f']},
+  hopper:{L:'lrud'},blocks:{L:'lrd',R:['u','f']}};
+ // button positions in units of the button size B: [x,y,w,h]
+ const DPAD={lrud:{w:3,h:3,b:{u:[1,0,1,1],l:[0,1,1,1],r:[2,1,1,1],d:[1,2,1,1]}},lrd:{w:3,h:2,b:{l:[0,0,1,1.05],r:[2,0,1,1.05],d:[1,1,1,1]}},
+  lr:{w:2.5,h:1.3,b:{l:[0,0,1.2,1.3],r:[1.3,0,1.2,1.3]}}};
+ const ACTS=[null,{w:1.35,h:1.35,p:[[0,0,1.35]]},{w:2,h:1.8,p:[[.9,.7,1.1],[0,0,1]]},{w:2.2,h:2.05,p:[[1.15,1.05,1.05],[0,1.05,1],[.6,0,.95]]}];
+ const ctl=()=>CTRL[gameId]||{L:'lr',R:['f']};
+ const side=v=>!v?{w:0,h:0}:typeof v==='string'?DPAD[v]||DPAD.lr:(v===ctl().R&&ctl().RA)||ACTS[Math.min(3,v.length)];
+ const isDpad=v=>typeof v==='string';
+ function btnHTML(k,x,y,w,h,cls){const lab=(LABEL[gameId]||{})[k]||k,i=lab.indexOf(' '),ic=i<0?lab:lab.slice(0,i),tx=i<0?'':lab.slice(i+1);
+  return `<button type="button" data-pad="${k}" class="pad-${k} ${cls}" style="left:calc(var(--b)*${x});top:calc(var(--b)*${y});width:calc(var(--b)*${w});height:calc(var(--b)*${h})" aria-label="${esc(tx||k)}"><span class="ic">${esc(ic)}</span>${tx?`<span class="tx">${esc(tx)}</span>`:''}</button>`;}
+ function clusterHTML(v){if(!v)return'';const S=side(v);let h='';
+  if(isDpad(v)){for(const k in S.b){const [x,y,w,hh]=S.b[k];h+=btnHTML(k,x,y,w,hh,'dir');}if(v==='lrud')h+='<i class="hub" style="left:calc(var(--b)*1);top:calc(var(--b)*1);width:var(--b);height:var(--b)"></i>';}
+  else v.slice(0,3).forEach((k,i)=>{const [x,y,d]=S.p[i];h+=btnHTML(k,x,y,d,d,'act'+(i?'':' main'));});
+  return `<div class="${isDpad(v)?'dpad':'acts'}" style="width:calc(var(--b)*${S.w});height:calc(var(--b)*${S.h})">${h}</div>`;}
+ const buzz=()=>{try{if(navigator.vibrate&&!muted)navigator.vibrate(8);}catch(e){}};
+ const press=k=>{if(!pad[k]){latch[k]=true;}pad[k]=true;document.querySelectorAll(`.pad [data-pad="${k}"]`).forEach(b=>b.classList.add('on'));};
+ const release=k=>{pad[k]=false;document.querySelectorAll(`.pad [data-pad="${k}"]`).forEach(b=>b.classList.remove('on'));};
+ const introTap=()=>{if(game&&game.intro&&game.tap)game.tap();};
+ function wireDpad(el,dirs,diag){let who=null,cur=[];
+  // the direction is the button nearest the thumb; the middle of a cross is a dead zone (keeps the last one)
+  const pickDirs=e=>{const bs=[...el.querySelectorAll('[data-pad]')].map(b=>{const r=b.getBoundingClientRect();return{k:b.dataset.pad,d:Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2)),s:r.width};}).sort((a,b)=>a.d-b.d);
+   const R=el.getBoundingClientRect(),cx=R.left+R.width/2,cy=dirs==='lrud'?R.top+R.height/2:null;
+   if(cy!==null&&Math.hypot(e.clientX-cx,e.clientY-cy)<bs[0].s*.32)return cur;
+   const out=[bs[0].k];if(diag&&bs[1]&&bs[1].d<bs[0].d*1.22&&('lr'.includes(bs[0].k)!=='lr'.includes(bs[1].k)))out.push(bs[1].k);return out;};
+  const set=nw=>{for(const k of cur)if(!nw.includes(k))release(k);let fresh=false;for(const k of nw)if(!cur.includes(k)){press(k);fresh=true;}if(fresh)buzz();cur=nw;};
+  el.addEventListener('pointerdown',e=>{e.preventDefault();if(who!==null&&who!==e.pointerId)return;who=e.pointerId;try{el.setPointerCapture(e.pointerId);}catch(x){}introTap();set(pickDirs(e));});
+  el.addEventListener('pointermove',e=>{if(e.pointerId===who)set(pickDirs(e));});
+  const end=e=>{if(e.pointerId!==who)return;who=null;set([]);};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,end));}
+ function wireActs(el){el.querySelectorAll('[data-pad]').forEach(b=>{const k=b.dataset.pad;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId);}catch(x){}press(k);buzz();introTap();});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>release(k)));});}
+ function buildPad(){const C=ctl();
+  $('padL').innerHTML=clusterHTML(C.L);$('padR').innerHTML=clusterHTML(C.R);
+  document.body.classList.toggle('solo',!C.R);
+  for(const [id,v] of [['padL',C.L],['padR',C.R]]){if(!v)continue;const el=$(id).firstElementChild;if(isDpad(v))wireDpad(el,v,!!C.diag);else wireActs(el);}
+  document.querySelectorAll('.pad').forEach(el=>el.addEventListener('contextmenu',e=>e.preventDefault()));}
+ // Choose where the controller goes: below the game, or either side of it, whichever leaves the
+ // bigger game (sideways screens lean towards "either side"). Sizes the buttons to the room left over.
+ function layout(){const B=document.body,touch=matchMedia('(pointer:coarse)').matches;B.classList.toggle('touch',touch);
+  if(!touch||!game){B.classList.remove('at-bottom','at-sides');return;}
+  const cs=getComputedStyle(B),W=B.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),
+   H=B.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-document.querySelector('.bar').offsetHeight;
+  const C=ctl(),L=side(C.L),Rs=side(C.R),uw=L.w+Rs.w+(C.R?.35:0),uh=Math.max(L.h,Rs.h),uside=Math.max(L.w,Rs.w),gW=game.W,gH=game.H;
+  const bMin=Math.max(42,Math.min(56,Math.min(W,H)*.14)),pad=20;
+  // below: buttons as big as the width allows, up to a limit; the game gets what is left
+  const bWide=Math.min(84,(W-32)/uw),bBase=Math.min(bWide,Math.max(bMin,Math.min(W,H)*.075)),kW=(W-8)/gW;
+  const kB=Math.min(kW,(H-8-uh*bBase-pad)/gH),spare=H-8-gH*kW-pad,bBottom=Math.min(bWide,Math.max(bBase,spare/uh));
+  // either side: buttons sized from the height
+  const bSide=Math.max(38,Math.min(72,(H-pad)/(uh+.4),(W*.2)/uside)),kS=Math.min((W-8-2*(uside*bSide+pad))/gW,(H-8)/gH);
+  const useSide=W>H?kS>=kB*.9:kS>kB*1.15,b=useSide?bSide:bBottom;
+  B.classList.toggle('at-sides',useSide);B.classList.toggle('at-bottom',!useSide);
+  B.style.setProperty('--b',Math.floor(b)+'px');B.style.setProperty('--sideW',Math.ceil(uside*b+pad)+'px');
+  B.style.setProperty('--colL',Math.ceil(L.w*b+16)+'px');B.style.setProperty('--padH',Math.ceil(uh*b+pad)+'px');}
  function wireCanvas(){
   if(game.onPointer){const gp=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*game.W,(e.clientY-r.top)/r.height*game.H];};
    cv.addEventListener('pointerdown',e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(x){}game.onPointer('down',...gp(e),e.pointerId,e.pointerType);});
@@ -102,13 +155,15 @@ const Host=(()=>{
   document.title=`${info.name} — ${SIDE.label} — Retro Arcade`;
   $('gName').textContent=`${info.icon} ${info.name}`;
   const run=archived?(location.pathname.match(/archive\/run-0*(\d+)/)||[])[1]:null;
-  $('gSide').textContent=archived?`AI run ${run} (past version)`:SIDE.label;$('gSide').className='side '+(archived?'past':SIDE.id);
+  $('gSide').innerHTML=archived?`<span class="l">AI run ${esc(run)} (past version)</span><span class="s">Run ${esc(run)}</span>`:`<span class="l">${esc(SIDE.label)}</span><span class="s">${SIDE.id==='enhanced'?'AI':esc(SIDE.label)}</span>`;$('gSide').className='side '+(archived?'past':SIDE.id);
   $('help').textContent=`Keys: arrows or W A S D to move, Space to fire, P to pause.${HELP[gameId]||''}`;
   cv=$('cv');ctx=cv.getContext('2d');buildPad();
   addEventListener('keydown',e=>{if(e.target&&(e.target.tagName==='INPUT'||e.target.isContentEditable))return;
    if(over){if(e.key==='Enter'||e.key===' '){e.preventDefault();start();}return;}
    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
    if(e.key==='p'||e.key==='P'||e.key==='Escape'){if(game&&game.onPause)game.onPause();else setPause();return;}
+   // Space/Enter on the start screen starts at once (not on the next frame, which can be slow on huge screens)
+   if((e.key===' '||e.key==='Enter')&&!e.repeat&&!paused&&game&&game.intro&&game.tap&&!game.onKey)game.tap();
    if(game&&game.onKey&&game.onKey('down',e.key,e.code)!==false)e.preventDefault();
    keys[e.key]=true;if(KEYMAP[e.key])latch[KEYMAP[e.key]]=true;});
   addEventListener('keyup',e=>{keys[e.key]=false;if(game&&game.onKey)game.onKey('up',e.key,e.code);});
