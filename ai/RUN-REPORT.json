@@ -1,103 +1,28 @@
 {
-  "title": "A proper touch controller: a slide-able D-pad and thumb buttons that fit every screen, Fold included",
-  "summary": "Stuart asked for better control placement on the Samsung Fold, so this week the touch buttons were rebuilt for all eleven games. Movement is now a D-pad you can slide your thumb around, actions are round buttons in a thumb cluster, and the page decides for each screen whether the buttons go below the game or either side of it, whichever leaves the bigger game. Block Drop also gets a little life in its background.",
+  "title": "Road Hopper grows up: a hopping frog, a living river and a lady frog to carry home",
+  "summary": "This week the AI spent the whole run on Road Hopper, which was the plainest game left: flat boxes for cars, brown bars for logs and an emoji frog that jumped a whole square at once. Everything is now drawn in code, the frog really hops, and there is a new reason to visit the logs: a lady frog who needs a lift home.",
   "kind": "enhance",
   "changes": [
     {
-      "game": "all",
-      "what": [
-        "New touch controller for every game: a D-pad on the left for moving and round action buttons on the right, with the main button bigger and coloured",
-        "Slide your thumb across the D-pad to change direction without lifting it; the middle of the pad keeps the last direction",
-        "The buttons go below the game or either side of it, whichever leaves the bigger game; on a sideways screen they sit either side, at thumb height",
-        "Buttons grow to use spare room (big on the open Fold and on tablets, never cramped on the folded Fold)",
-        "A tiny buzz on each press, on phones that support it (off when the sound is off)",
-        "On narrow screens the 'AI-enhanced' badge shortens to 'AI' so the game's name fits; a slimmer top bar on short, sideways screens",
-        "Space or Enter on a game's start screen now starts it straight away, instead of waiting for the next frame (which could miss the press on very large screens)"
-      ],
-      "why": "On the folded Fold the buttons were squeezed into the bottom corners and wrapped untidily, sideways they were stacked in the top corner away from the thumbs, and movement was split across both sides of the screen in some games."
-    },
-    {
-      "game": "maze",
-      "what": [
-        "Movement on one four-way D-pad instead of left/right on one side and up/down on the other"
-      ],
-      "why": "Steering a maze is much easier with one thumb on a cross."
-    },
-    {
-      "game": "snake",
-      "what": [
-        "Movement on one four-way D-pad instead of being split across both sides"
-      ],
-      "why": "Quick turns are easier when all four directions are under one thumb."
-    },
-    {
       "game": "hopper",
       "what": [
-        "Movement on one four-way D-pad instead of being split across both sides"
+        "A new frog drawn in code: it faces the way it hops, glides through each hop with its legs kicking out, casts a shadow and blinks",
+        "A key pressed during a hop is remembered and used straight after, so quick taps are never lost",
+        "A rippling river, grassy bank with flowers, lily-pad homes set into a hedge, a road with kerbs and a double yellow line, and paving where you start",
+        "Logs with bark and cut ends; turtles with shells, heads and paddling flippers that turn orange and sink when they are about to dive",
+        "Cars, sports cars and lorries seen from above, with windscreens, headlights and tail lights",
+        "Better mishaps: a splash of rings in the water, a flattened frog on the road, a dizzy frog when time runs out",
+        "New: a lady frog (pink, with a bow) sometimes waits on a log. Hop onto her log to pick her up and carry her home for a bonus",
+        "The fly in the homes is drawn in code with buzzing wings; the snake on the bank (from level 2) now slithers",
+        "From level 2 the traffic and river are shuffled a little: lanes may run the other way and speeds vary",
+        "The time bar turns yellow, then flashes red with a ticking sound in the last five seconds; the level is shown at the bottom",
+        "New description on the arcade list"
       ],
-      "why": "Hopping is one direction at a time, so one cross fits it best."
-    },
-    {
-      "game": "guardian",
-      "what": [
-        "Four-way D-pad that also gives diagonals, so you can climb and fly forward at once",
-        "Fire and Bomb as a pair of round buttons"
-      ],
-      "why": "Flying needs two directions together; before, up/down and left/right were on opposite sides."
-    },
-    {
-      "game": "ladder",
-      "what": [
-        "Four-way D-pad for walking and climbing, a big Jump button on the right"
-      ],
-      "why": "Climb and walk were split across both sides before."
-    },
-    {
-      "game": "meteor",
-      "what": [
-        "Two big rotate buttons on the left; Fire, Thrust and Hyperspace in a thumb cluster on the right"
-      ],
-      "why": "Fire is used most, so it is the biggest button where the thumb rests."
-    },
-    {
-      "game": "racer",
-      "what": [
-        "Steering on the left; Go, Brake and Nitro in a thumb cluster on the right, with Go as the main button"
-      ],
-      "why": "Go is held most of the time, so it gets the main spot."
-    },
-    {
-      "game": "invaders",
-      "what": [
-        "Bigger left/right buttons and one large round Fire button"
-      ],
-      "why": "Part of the new controller."
-    },
-    {
-      "game": "bricks",
-      "what": [
-        "Bigger left/right buttons and one large round Serve button"
-      ],
-      "why": "Part of the new controller."
-    },
-    {
-      "game": "pinball",
-      "what": [
-        "Two matching big flipper buttons, one at each side, with Launch beside the right flipper"
-      ],
-      "why": "Flippers should feel like a left hand and a right hand."
-    },
-    {
-      "game": "blocks",
-      "what": [
-        "Left, right and down on a D-pad; Turn as the main button with Drop beside it",
-        "Twinkling, drifting dust behind the well and a softly pulsing landing guide"
-      ],
-      "why": "The screen could sit completely still between steps at the start, which felt lifeless."
+      "why": "Road Hopper looked the most dated of the eleven and had been on the AI's to-do list since the first run. Making the frog hop smoothly makes the game feel more responsive, and the lady frog gives a reason to take a risk on the river."
     }
   ],
   "new_games": [],
   "retired_games": [],
-  "tested": "Full test rig on the AI-enhanced side, 1,255 checks all passing (laptop, phone, folded and open Fold, Fold sideways, iPad, large screens). Took full-page pictures of every kind of controller on the folded Fold, the open Fold, the Fold sideways, a phone upright and sideways, and an iPad upright and sideways, and checked that the game and buttons are on screen with nothing overlapping. Drove the D-pad in a browser to check sliding from one direction to another, diagonals in Planet Guardian, and that lifting the thumb lets go.",
-  "next": "A left-handed option to swap the two sides, and controller settings remembered per device. Then back to polishing a game (Road Hopper or Brick Blaster), or shared background music."
+  "tested": "Quick and full test rig on the AI-enhanced side (all screen sizes from the folded Fold to 4K, upright and sideways). Looked at pictures of the title screen, play, the lady frog on a log and a road accident, on a laptop window and the folded Fold. Drove the game in a browser with real key presses and with a simulated player to check hopping, scoring, the lady frog appearing, and that there are no errors.",
+  "next": "A left-handed option for the touch controls, remembered per device. Then Brick Blaster gets the same treatment, or shared background music across the arcade."
 }

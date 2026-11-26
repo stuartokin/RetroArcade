@@ -79,7 +79,7 @@
    "id": "hopper",
    "name": "Road Hopper",
    "icon": "🐸",
-   "desc": "Hop across roads and a river into the five homes.",
+   "desc": "Hop the traffic, ride the river and carry the lady frog home.",
    "play": "play.html?game=hopper",
    "origin": "classic"
   },
@@ -92,5 +92,5 @@
    "origin": "classic"
   }
  ],
- "run": 2
+ "run": 3
 }

@@ -106,3 +106,44 @@ letters. Renamed to `at-sides` / `at-bottom`. Check class names against `play.cs
 
 **Next.** A left-handed swap (D-pad on the right) remembered per device, perhaps a choice of button
 size. Then back to a game: Road Hopper or Brick Blaster polish, or shared background music.
+
+## Run 3 — 2026-11-26
+
+**Plan (written before building; no focus asked for).** Road Hopper has been on my "next" list twice
+and, looking at it again, it is the plainest game left: flat rectangles for cars, brown bars for logs,
+green circles for turtles, black boxes for homes and an emoji frog that jumps a whole square at once.
+This run is one game, done properly, like Super Snake in run 1:
+- a frog drawn in code that faces the way it hops and glides through a short hop with a stretch,
+  instead of teleporting; a key pressed mid-hop is remembered, so quick taps are never lost;
+- a proper scene: rippling river, grassy banks with flowers, lily-pad homes in a hedge, a road with
+  kerbs; logs with bark and end rings, turtles with shells, heads and flippers that visibly dive;
+  cars and lorries seen from above with windscreens and headlights;
+- better deaths: a splash in the water, a flattened frog on the road;
+- a "lady frog" who sometimes rides a log; carry her home for a bonus (instead of nothing new);
+- the level's traffic shuffled a little each level so it isn't the same every time.
+
+**What I did.** Built everything in the plan, all inside `makeHopper` in `enhanced/js/games.js`
+(plus the description in `games.json` and `GAME_LIST`, and `?v=r3` in `play.html`).
+- The frog is `frogShape()` (drawn facing up, rotated by `ANG[dir]`). `frog.x`/`frog.r` jump to the
+  target at once and `frog.hop={fx,fr,p}` animates over `HOP` = 0.12 s. While in the air nothing can
+  hit it; collisions run on landing. If the target row is river, both ends of the hop drift with it.
+  A press during a hop goes into `frog.queued`.
+- The still scene (hedge, banks, road, paving) is painted once into `bg`; ripples are drawn live.
+- Lady frog: `lady={lane,item,o,walk,life}` rides a log for ~11 s; landing within ¾ of a cell picks
+  her up (`frog.carry`); getting home with her is 3,000 × level; dying loses her.
+- `build()` flips all lane directions together (50 %) and wobbles speeds ±10 % from level 2.
+- `G._peek()` returns frog, lady and lane info for test drives.
+
+**Noticed.**
+- The first draw of logs had bark marks running past the cut end and the cars had a grey
+  "headlight beam" that just looked like a smudge; both fixed after looking at the pictures.
+- The lady frog can appear near the right end of a log and drift off screen before you reach her;
+  that is fine (she comes back), but a future tweak could pick a log just coming on screen.
+- Difficulty is unchanged at level 1; the shuffle only starts at level 2.
+
+**Tested.** Quick rig 502/502; full rig 1,255/1,255 on a second run. The first full run had one
+failure, a home-page preview video (`media/clips/original/racer.mp4`) that didn't load at 4K, while I
+was running another browser at the same time; it is not part of `enhanced/`.
+
+**Next.** Left-handed controller swap; then Brick Blaster polish or shared background music.
+Remaining football leftovers: Invaders' "defend the pitch" bonus round and Pinball's G-O-A-L.

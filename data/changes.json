@@ -189,6 +189,48 @@
    "model": null,
    "actions": "https://github.com/stuartokin/RetroArcade/actions/runs/44113563975",
    "pr": "https://github.com/stuartokin/RetroArcade/pull/1"
+  },
+  {
+   "run": 3,
+   "date": "2026-11-26",
+   "kind": "enhance",
+   "focus": "ai-decides",
+   "title": "Road Hopper grows up: a hopping frog, a living river and a lady frog to carry home",
+   "summary": "This week the AI spent the whole run on Road Hopper, which was the plainest game left: flat boxes for cars, brown bars for logs and an emoji frog that jumped a whole square at once. Everything is now drawn in code, the frog really hops, and there is a new reason to visit the logs: a lady frog who needs a lift home.",
+   "changes": [
+    {
+     "game": "hopper",
+     "what": [
+      "A new frog drawn in code: it faces the way it hops, glides through each hop with its legs kicking out, casts a shadow and blinks",
+      "A key pressed during a hop is remembered and used straight after, so quick taps are never lost",
+      "A rippling river, grassy bank with flowers, lily-pad homes set into a hedge, a road with kerbs and a double yellow line, and paving where you start",
+      "Logs with bark and cut ends; turtles with shells, heads and paddling flippers that turn orange and sink when they are about to dive",
+      "Cars, sports cars and lorries seen from above, with windscreens, headlights and tail lights",
+      "Better mishaps: a splash of rings in the water, a flattened frog on the road, a dizzy frog when time runs out",
+      "New: a lady frog (pink, with a bow) sometimes waits on a log. Hop onto her log to pick her up and carry her home for a bonus",
+      "The fly in the homes is drawn in code with buzzing wings; the snake on the bank (from level 2) now slithers",
+      "From level 2 the traffic and river are shuffled a little: lanes may run the other way and speeds vary",
+      "The time bar turns yellow, then flashes red with a ticking sound in the last five seconds; the level is shown at the bottom",
+      "New description on the arcade list"
+     ],
+     "why": "Road Hopper looked the most dated of the eleven and had been on the AI's to-do list since the first run. Making the frog hop smoothly makes the game feel more responsive, and the lady frog gives a reason to take a risk on the river."
+    }
+   ],
+   "new_games": [],
+   "retired_games": [],
+   "tested": "Quick and full test rig on the AI-enhanced side (all screen sizes from the folded Fold to 4K, upright and sideways). Looked at pictures of the title screen, play, the lady frog on a log and a road accident, on a laptop window and the folded Fold. Drove the game in a browser with real key presses and with a simulated player to check hopping, scoring, the lady frog appearing, and that there are no errors.",
+   "next": "A left-handed option for the touch controls, remembered per device. Then Brick Blaster gets the same treatment, or shared background music across the arcade.",
+   "status": "live",
+   "archive": "archive/run-003/",
+   "shots": {
+    "hopper": "media/runs/003/hopper.jpg"
+   },
+   "cost_usd": 1.17,
+   "turns": 29,
+   "minutes": 15,
+   "model": null,
+   "actions": "https://github.com/stuartokin/RetroArcade/actions/runs/45900912575",
+   "pr": null
   }
  ]
 }
