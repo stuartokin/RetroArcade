@@ -2,6 +2,17 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.2.2 — 27 Nov 2026
+
+- Rig fixes (test timing only; no change to what the games must do). Run 4 was held back by two false
+  failures, neither in `enhanced/`:
+  - **Original Invaders at 4K "didn't start from a key press".** The intro ignores a fire key that is
+    already down on its first frame; on the slow CI machine the rig pressed before that frame. The rig
+    now waits for the attract screen to draw, then allows up to 2 s for the game to act on the press.
+  - **Home page "request failed: …/hopper.mp4".** Chrome cancels preview-video downloads part-way
+    (`net::ERR_ABORTED`) when a video is paused or swapped. That is no longer counted as an error;
+    any other failed request still is.
+
 ## 1.2.1 — 16 Nov 2026
 
 - Search no longer matches the names of commercial classics (Stuart: "a little too obvious"); names and

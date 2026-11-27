@@ -30,7 +30,9 @@ const ok=(c,name,detail='')=>{if(c){pass++;}else{fail++;fails.push(`${name}${det
 
 async function newPage(browser,d){const ctx=await browser.newContext({viewport:{width:d.w,height:d.h},hasTouch:d.touch,isMobile:d.touch,deviceScaleFactor:1});const page=await ctx.newPage();
  const errs=[];page.on('pageerror',e=>errs.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/favicon|fonts\.g/.test(m.text()))errs.push(m.text());});
- page.on('requestfailed',r=>{if(!/fonts\.(googleapis|gstatic)/.test(r.url()))errs.push('request failed: '+r.url());});
+ // Chrome cancels preview-video downloads part-way when a video is paused or swapped (net::ERR_ABORTED): not a fault.
+ // A missing file is still caught (that is a 404 response, or a different network error).
+ page.on('requestfailed',r=>{const u=r.url(),why=(r.failure()||{}).errorText||'';if(/fonts\.(googleapis|gstatic)/.test(u))return;if(/\.(mp4|webm)(\?|$)/.test(u)&&/ERR_ABORTED/.test(why))return;errs.push('request failed: '+u+(why?' ('+why+')':''));});
  return{ctx,page,errs};}
 const overflow=page=>page.evaluate(()=>Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-window.innerWidth);
 
@@ -103,11 +105,16 @@ async function checkGame(browser,base,d,side,g){const {ctx,page,errs}=await newP
   ok(!!box,`${tag}: has a game area`);
   if(box){ok(box.x>=-1&&box.y>=-1&&box.x+box.w<=box.W+1&&box.y+box.h<=box.H+1,`${tag}: game fully on screen`,JSON.stringify(box));
    ok(box.w*box.h>=box.W*box.H*.15,`${tag}: game is big enough`,`${Math.round(box.w)}×${Math.round(box.h)} on ${box.W}×${box.H}`);}
+  // let the attract screen draw a couple of frames first, as a person would see it before pressing
+  // (the intro ignores a key already held on its first frame, so on a slow machine an early press is lost)
+  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(r)))));
   // start it: a tap with a small wobble on touch screens, Space on keyboards
   const cx=box?box.x+box.w/2:d.w/2,cy=box?box.y+box.h/2:d.h/2;
   if(d.touch){await page.touchscreen.tap(cx,cy);await page.waitForTimeout(60);await page.touchscreen.tap(cx+4,cy+3);}
   else{await page.keyboard.press('Space');await page.waitForTimeout(80);await page.keyboard.press('Enter');}
   await page.waitForTimeout(300);
+  // give a slow machine (4K on a CI runner) up to 2 s to act on that one press
+  await page.waitForFunction(()=>window.ARCADE.state&&!window.ARCADE.state().intro,null,{timeout:2000}).catch(()=>{});
   const st0=await page.evaluate(()=>window.ARCADE.state?window.ARCADE.state():{});
   ok(!st0.intro,`${tag}: starts from a ${d.touch?'tap':'key press'}`,JSON.stringify(st0));
   // play for a bit with a mix of controls

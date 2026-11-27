@@ -19,6 +19,9 @@
   removed the same day.)
 - **16 Nov 2026**: moving previews (recorded clips) instead of stills; the AI version plays on the
   home page, the original plays in the log.
+- **27 Nov 2026**: `tests/check.js` timing fixes (wait for the intro to draw and up to 2 s for a start;
+  ignore aborted video downloads). This changes the AI's conditions only by removing two false failures
+  that held back run 4; every check asks the same of the games as before.
 
 ## Open / waiting on Stuart
 

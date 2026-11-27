@@ -27,4 +27,8 @@ See also `docs/SHARED-LESSONS.md` in stuartokin.github.io.
    `.pic.wide` first lost to the more specific `.tile img.pic`. (16 Nov 2026)
 8. **A huge carousel card needs a swipe rule.** On QHD and 4K a normal drag snapped back to the same
    card. Any clear swipe (40 px or more) now moves at least one card. (16 Nov 2026)
-
+9. **Timing flakes on the CI runner hold back a whole AI run.** Run 4 (27 Nov) passed 1,723 checks and
+   was held back by two false failures: a key pressed before a 4K game's first frame (swallowed by the
+   intro's "key already held" guard), and Chrome aborting a preview-video download. Wait for a state
+   change instead of a fixed pause, and only ignore the exact harmless error (`ERR_ABORTED` on video),
+   not all failed requests. (27 Nov 2026)
