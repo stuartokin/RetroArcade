@@ -35,3 +35,7 @@ See also `docs/SHARED-LESSONS.md` in stuartokin.github.io.
 10. **Inputs typed into "Run workflow" must accept what a person would type.** The game box wanted the
     id (`guardian`); Stuart typed the name twice and both runs failed with a developer error. Match
     names case-insensitively and fail with a plain list of choices. (27 Nov 2026)
+11. **Pushing to `main` while an AI run is going blocks its merge.** Run 5 passed everything, then its pull
+    request was "not mergeable" because two human pushes meanwhile had also changed `data/changes.json`
+    and `version.json`. The publish step now rebuilds the run onto the latest `main`
+    (`tools/evolve/onto-main.mjs`). Still best to avoid pushing during a run (Actions tab shows it). (27 Nov 2026)

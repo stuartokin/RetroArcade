@@ -197,6 +197,11 @@ jobs:
           TITLE="🤖 AI run $RUN — $(jq -r '.title // "no report"' ai/RUN-REPORT.json 2>/dev/null || echo 'no report')"
           git checkout -b "$BRANCH"
           git commit -q -m "$TITLE" -m "Weekly evolve run $RUN. See data/changes.json for the full entry."
+          # if main moved on during the run (a fix pushed meanwhile), rebuild this run on top of it so it can merge
+          git fetch -q origin main
+          if [ "$(git rev-parse FETCH_HEAD)" != "$BASE" ]; then
+            node tools/evolve/onto-main.mjs "$BASE" "$(git rev-parse HEAD)" FETCH_HEAD
+          fi
           git push -f origin "$BRANCH"
           gh label create "🤖 AI-maintained" --color 7b2ff7 --description "Changed by the weekly AI run" --force -R "$REPO" || true
           if [ "$PASSED" != "true" ]; then

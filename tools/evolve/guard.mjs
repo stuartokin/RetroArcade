@@ -31,9 +31,10 @@ if(rep){for(const k of ['title','summary','kind','tested'])if(!rep[k]||typeof re
  for(const c of rep.changes||[]){if(!(c.game==='all'||ids.has(c.game)||retired.has(c.game)))bad(`Report mentions a game that isn't in enhanced/games.json: ${c.game}`);
   if(!c.what||(Array.isArray(c.what)&&!c.what.length))bad(`Report: say what changed in ${c.game}`);if(!c.why)bad(`Report: say why for ${c.game}`);}
  for(const id of rep.new_games||[])if(!ids.has(id))bad(`New game ${id} isn't in enhanced/games.json`);
- // games that disappeared must be declared as retired
+ // no game is ever removed (Stuart, 27 Nov 2026)
  const before=JSON.parse(sh(`git show ${base}:enhanced/games.json`)).games.map(g=>g.id);
- for(const id of before)if(!ids.has(id)&&!retired.has(id))bad(`Game ${id} vanished from enhanced/games.json without being listed in "retired_games"`);
+ for(const id of before)if(!ids.has(id))bad(`Game ${id} was removed from enhanced/games.json: games are never retired`);
+ if(retired.size)bad('"retired_games" must be empty: games are never retired');
  for(const id of ids)if(!before.includes(id)&&!(rep.new_games||[]).includes(id))bad(`Game ${id} is new but not listed in "new_games"`);}
 // 4b. a run asked for a new game must deliver one, with the ideas it weighed up
 if(rep&&process.env.FOCUS==='new-game'){if(!(rep.new_games||[]).length)bad('This run was asked to create a new game, but "new_games" is empty');

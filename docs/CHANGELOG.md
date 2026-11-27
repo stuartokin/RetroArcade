@@ -2,6 +2,18 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.3.1 — 27 Nov 2026
+
+- **Run 5 published** (Planet Guardian: its own cast, a living planet and a kidnap alarm). It passed every
+  check, but its pull request couldn't merge because `main` moved on during the run (run 4's cost fix
+  and 1.3.0 were pushed meanwhile, and both touched the log and `version.json`). Moved onto the latest
+  `main` and re-tested with the full rig.
+- **Publish step fixed for good:** if `main` has moved on by the time a run finishes, the workflow
+  rebuilds the run on top of it (`tools/evolve/onto-main.mjs`): the run's files are kept, the log gets
+  this run's entry added to main's, and `version.json` keeps main's version with the run's number.
+- **No game is ever retired** (Stuart). The brief says so and the rule check rejects a run that
+  removes a game; `retired_games` must be empty.
+
 ## 1.3.0 — 27 Nov 2026
 
 - **A new game every month.** The scheduled run on the first Sunday of each month is told to create a

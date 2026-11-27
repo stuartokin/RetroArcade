@@ -26,6 +26,9 @@
   New-game runs: 250 steps and $15, a 2–3 idea pitch shown in the log, and they must deliver a game.
   **No game is ever retired** to make room; the home page scrolls instead. This changes the AI's
   conditions (`ai/BRIEF.md`, `guard.mjs`, `tests/check.js`).
+- **27 Nov 2026** (Stuart): **no retiring, ever.** Brief and rule check changed (AI conditions).
+- **27 Nov 2026**: run 5 published by hand after its merge was blocked by pushes to `main` during the run;
+  the publish step now rebuilds a run onto the latest `main` itself.
 - **27 Nov 2026**: run 4 published by hand after the fix (Stuart chose "publish"); PR #3 closed by the
   push. If a run is held back by a rig fault again, the same recipe works: KNOWLEDGE → evolve.
 

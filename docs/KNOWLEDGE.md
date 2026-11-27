@@ -10,7 +10,7 @@ A static site (GitHub Pages, `main`, repo root) with eleven original arcade game
   - no time limits, family rules or maths-app links
   - the football touches and Invaders' mental-maths bonus round kept (Stuart's choice)
 - **AI-enhanced** (`enhanced/`): started identical. Changed only by the weekly AI run, which has free
-  rein: it can polish, rework, modernise, rename, retire or invent games.
+  rein: it can polish, rework, modernise, rename or invent games (never retire one: Stuart, 27 Nov 2026).
 
 The point is the record. Each run is logged, explained, photographed and archived, so anyone can see
 what the AI did, when, and why, and play any past week's version.
@@ -86,7 +86,9 @@ the rig read these. Ids are permanent: the history is keyed on them.
      - copies to `archive/run-NNN/` and takes pictures of the changed games
      - adds the log entry (with cost, steps, minutes and links) and updates `version.json`
   7. **publish**:
-     - one squashed commit on `ai/run-NNN`, then a PR labelled 🤖 AI-maintained
+     - one squashed commit on `ai/run-NNN`; if `main` moved on during the run, `onto-main.mjs` rebuilds
+       it on the latest `main` (run's files win; the log and `version.json` are merged)
+     - then a PR labelled 🤖 AI-maintained
      - adds the PR link to the entry, then auto-merges, then requests a Pages build
      - if PRs from Actions aren't allowed, it pushes straight to `main`
 - **If the guard or tests fail:** the branch is pushed and a "⚠️ failed checks" PR is opened for
@@ -103,7 +105,7 @@ the rig read these. Ids are permanent: the history is keyed on them.
   a new-game run (scheduled or chosen by hand). Typed-in budget/steps override both; blank = default.
 - **New-game runs:** the AI writes 2–3 one-line ideas, picks one, builds it and lists them in the report's
   `"ideas"` (shown in the log in a gold box). The rule check fails the run if no new game was added or the
-  ideas are missing. The brief says never retire a game in a new-game run.
+  ideas are missing. No run may remove a game (rule check).
 - **Needs:**
   - the `ANTHROPIC_API_KEY` secret
   - Actions permissions: read and write, plus "Allow GitHub Actions to create and approve pull

@@ -28,7 +28,8 @@ in your journal.
    digits, hyphens), `name`, `icon` (one emoji), `desc` (one sentence), `play` (a page inside
    `enhanced/`, e.g. `play.html?game=maze`) and `origin` (`"classic"` for the eleven originals,
    `"ai"` for games you invent, plus `"born": "YYYY-MM-DD"`). Keep the ids of existing games, because
-   the history is keyed on them. You may retire a game by removing it, but say so and say why.
+   the history is keyed on them. Never remove or retire a game: every game stays in the arcade (Stuart's rule). Rework one as much as
+   you like instead.
 3. **Every play page must:**
    - set `window.ARCADE = {ready: true, state() {...}}` once the game is on screen. `state()`
      returns at least `{score, over, intro}`.
@@ -84,7 +85,6 @@ The workflow records the moving previews (`tools/clips.js`) and the pictures aft
   ],
   "ideas": ["New-game runs only: the 2 or 3 one-line game ideas you considered, the chosen one first"],
   "new_games": ["ids of games you created this run"],
-  "retired_games": ["ids of games you removed this run, if any"],
   "tested": "How you tested it (devices, what you played, what you looked at).",
   "next": "What you'd like to try in a future run."
 }
@@ -93,7 +93,7 @@ The workflow records the moving previews (`tools/clips.js`) and the pictures aft
 **New-game runs.** When a run asks for a new game, start by writing 2 or 3 one-line ideas in your
 journal, pick one and say why, then build it. List the ideas in `"ideas"` (the chosen one first); they
 appear in the public log. The run must end with a finished, working new game in `new_games`; if time
-runs short, make it smaller rather than leave it out. Never retire a game in a new-game run.
+runs short, make it smaller rather than leave it out.
 
 List every game you changed in `changes`, including new games, even if the change seems obvious
 or tiny (e.g. "faster start", "new colours"). The log is how Stuart sees what you did over time.
