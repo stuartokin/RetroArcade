@@ -18,7 +18,8 @@ const Music=(()=>{
   pinball:{bpm:136,root:55,scale:'mixo',A:[0,6,3,0],B:[5,6,3,4],lead:'square',bass:'walk',drums:'back',arp:true,seed:83},
   bricks:{bpm:130,root:53,scale:'dorian',A:[0,3,0,6],B:[2,3,4,4],lead:'square',bass:'drive',drums:'back',arp:false,seed:97},
   hopper:{bpm:118,root:53,scale:'major',A:[0,0,3,4],B:[5,1,4,4],lead:'triangle',bass:'oompah',drums:'shuffle',arp:false,seed:101},
-  blocks:{bpm:116,root:57,scale:'harm',A:[0,3,4,0],B:[5,3,1,4],lead:'square',bass:'pulse',drums:'back',arp:true,seed:113}};
+  blocks:{bpm:116,root:57,scale:'harm',A:[0,3,4,0],B:[5,3,1,4],lead:'square',bass:'pulse',drums:'back',arp:true,seed:113},
+  moon:{bpm:112,root:60,scale:'major',A:[0,5,3,4],B:[5,3,0,4],lead:'triangle',bass:'oompah',drums:'soft',arp:true,seed:131}};
  const RHYTHMS=[ // note onsets in a bar of 16 steps: [step, length]
   [[0,2],[2,2],[4,2],[6,2],[8,4],[12,2],[14,2]],
   [[0,3],[3,3],[6,2],[8,2],[10,2],[12,4]],

@@ -252,3 +252,58 @@ alarm, wave-clear and lost-colony screens.
 
 **Next.** A taller view for Planet Guardian on upright phones; then Brick Blaster polish, or music
 that reacts (last life, wave clear).
+
+## Run 6 — 2026-11-27
+
+**Plan (written before building; Stuart's note says "new-game").** Five runs without a new game, and
+the note asks for one. The arcade has shooters, a maze, a racer, a platformer, puzzle and bat-and-ball
+games, but nothing that goes *up*. Ideas:
+1. **Moon Bounce** — a little alien springs from cloud to cloud, climbing from a blue day sky through
+   sunset and night into space, all the way to the moon. Left and right only (plus an optional star
+   shot), so it suits small children and phones.
+2. **Bubble Garden** — aim and fire coloured bubbles at a ceiling of bubbles; three of a colour pop.
+3. **Comet Courier** — steer a little ship round planets with gravity to deliver parcels to moons.
+
+I chose **Moon Bounce**: it has the simplest controls of the three (good for touch and for the
+youngest players), it moves all the time (good for the log's moving previews), and the climb through
+changing skies gives a sense of progress without levels to design. Plan: its own file
+`enhanced/js/moon.js`, loaded by `play.html`; springy, crumbling and moving clouds, springs, rocket
+packs, stars to collect, grumpy storm-puffs you can bounce on or pop; a new zone (sky colour) every
+500 m; falling off costs a life but a bubble carries you back up; pixel-free smooth drawing in code;
+touch by D-pad or dragging on the game; its own tune in `music.js`.
+
+**What I did.** Built Moon Bounce (`id: moon`, `origin: "ai"`, born 2026-11-27) in its own file,
+`enhanced/js/moon.js`, loaded after `games.js` by `play.html` (all script tags now `?v=r6`). It
+pushes itself onto `GAME_LIST` and `GAMES`. Small additions elsewhere: `host.js` (`LABEL`, `HELP` and
+`CTRL` entries: a left/right pad and a ⭐ Star button), `music.js` (a `moon` song: C major, triangle
+lead, oompah bass, soft drums, seed 131) and `games.json`. Notes for later:
+- Units: 10 px of climb = 1 m (`PXM`), a new sky every 1,000 m (`ZONE_M`); six `ZONES` (the last,
+  MOON ORBIT, repeats for ever). Difficulty `diff()` ramps from 0 to 1 over 5,000 m: bigger gaps,
+  more moving clouds, crumbly clouds and storm-puffs. A bounce reaches 224 px; the largest gap is 165.
+- Crumbly clouds are only ever *extras* between the safe chain of clouds, so you never need one.
+- Each new sky gives 1,000 × zone points and a life (up to five). Banners freeze play only for
+  WHOOPS and GAME OVER (`banner.freeze`), not for the sky changes.
+- Losing a life: a rescue cloud appears near the bottom of the view and the alien floats down to it
+  in a bubble (3 s of safety). Storm-puffs near the rescue spot are cleared.
+- Particles are made in world coordinates; `FX.render` is wrapped to shift by `camY`.
+- `G._peek()` returns the player, clouds, puffs, items, metres and zone, for test drives. An
+  off-screen autopilot (`GAMES.moon(env)`, `G.tap()`, call `G.update(1/60, inp)` in a loop) is the
+  quickest way to see the high skies.
+- My first scale (6 px a metre, 500 m skies) let the autopilot reach a new sky every 12 seconds,
+  far too fast; it's now about 45 seconds for the autopilot and longer for a person.
+
+**Noticed.**
+- **The test rig can't accept a new game.** `tests/check.js` lines 79–80 expect the home carousel to
+  show "1 / 51" (11 AI games + 40 pretend ones), so adding any game fails those two checks on three
+  devices (6 failures). Everything else passes. It's outside what I'm allowed to change; the fix is to
+  compare against the real number of games (`src.length+40`). I kept the game, because the brief
+  asks for a finished new game, and said so in the report.
+- Tall games (Brick Blaster, Moon Bounce) are small when the Fold is on its side. It works, but a
+  wider view on sideways screens would be nicer.
+
+**Tested.** Quick rig 556 passed, 6 failed; full rig 1,401 passed, 18 failed. Every failure is the
+"1 / 51" home-page check above (two checks on each of nine devices). Keyboard at 1000×760, touch at 344×882 and 882×344, pictures of every sky; an autopilot with
+99 lives climbed 8,800 m in 400 s without errors, and with 3 lives reached 1,800–3,700 m.
+
+**Next.** A proper arrival at the moon (land on it, then new skies beyond); Brick Blaster polish;
+music that reacts.

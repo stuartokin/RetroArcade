@@ -38,8 +38,8 @@ const Host=(()=>{
  const KEYMAP={ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r',ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d',' ':'f',Enter:'f',b:'b',B:'b',x:'b',X:'b',Shift:'b'};
  // a quick tap (pressed and released between two frames) is remembered until the game has seen it
  const inp=()=>{const o={};for(const k of ['l','r','u','d','f','b'])o[k]=!!(pad[k]||latch[k]);for(const key in keys)if(keys[key]&&KEYMAP[key])o[KEYMAP[key]]=true;return o;};
- const LABEL={invaders:{l:'◀',r:'▶',f:'● FIRE'},maze:{l:'◀',r:'▶',u:'▲',d:'▼'},meteor:{l:'⟲',r:'⟳',u:'▲ Thrust',f:'● Fire',d:'🌀 Hyper'},guardian:{u:'▲',d:'▼',l:'◀',r:'▶',f:'🔥 Fire',b:'💣 Bomb'},ladder:{l:'◀',r:'▶',u:'▲ Climb',d:'▼',f:'⤴ Jump'},racer:{l:'◀',r:'▶',u:'▲ Go',d:'▼ Brake',f:'🔥 Nitro'},snake:{l:'◀',r:'▶',u:'▲',d:'▼'},pinball:{l:'◀ Flip',r:'▶ Flip',f:'⬆ Launch'},bricks:{l:'◀',r:'▶',f:'● Serve'},hopper:{l:'◀',r:'▶',u:'▲',d:'▼'},blocks:{l:'◀',r:'▶',u:'⟳ Turn',d:'▼',f:'⤓ Drop'}};
- const HELP={maze:' Or swipe on the maze.',snake:' Or swipe on the game.',hopper:' Or swipe on the game.',bricks:' Or drag on the game.',invaders:' Or drag on the game.'};
+ const LABEL={invaders:{l:'◀',r:'▶',f:'● FIRE'},maze:{l:'◀',r:'▶',u:'▲',d:'▼'},meteor:{l:'⟲',r:'⟳',u:'▲ Thrust',f:'● Fire',d:'🌀 Hyper'},guardian:{u:'▲',d:'▼',l:'◀',r:'▶',f:'🔥 Fire',b:'💣 Bomb'},ladder:{l:'◀',r:'▶',u:'▲ Climb',d:'▼',f:'⤴ Jump'},racer:{l:'◀',r:'▶',u:'▲ Go',d:'▼ Brake',f:'🔥 Nitro'},snake:{l:'◀',r:'▶',u:'▲',d:'▼'},pinball:{l:'◀ Flip',r:'▶ Flip',f:'⬆ Launch'},bricks:{l:'◀',r:'▶',f:'● Serve'},hopper:{l:'◀',r:'▶',u:'▲',d:'▼'},blocks:{l:'◀',r:'▶',u:'⟳ Turn',d:'▼',f:'⤓ Drop'},moon:{l:'◀',r:'▶',f:'⭐ Star'}};
+ const HELP={maze:' Or swipe on the maze.',snake:' Or swipe on the game.',hopper:' Or swipe on the game.',bricks:' Or drag on the game.',invaders:' Or drag on the game.',moon:' Or drag on the game to steer.'};
 
  // ---------- scores ----------
  const fmtN=n=>Math.round(n||0).toLocaleString('en-GB');
@@ -100,7 +100,7 @@ const Host=(()=>{
  // (first = main button, placed where the thumb rests). diag: the D-pad also gives diagonals.
  const CTRL={invaders:{L:'lr',R:['f']},maze:{L:'lrud'},meteor:{L:'lr',R:['f','u','d']},guardian:{L:'lrud',R:['f','b'],diag:true},
   ladder:{L:'lrud',R:['f']},racer:{L:'lr',R:['u','d','f']},snake:{L:'lrud'},pinball:{L:['l'],R:['r','f'],RA:{w:2.15,h:2.05,p:[[.8,.7,1.35],[0,0,.95]]}},bricks:{L:'lr',R:['f']},
-  hopper:{L:'lrud'},blocks:{L:'lrd',R:['u','f']}};
+  hopper:{L:'lrud'},blocks:{L:'lrd',R:['u','f']},moon:{L:'lr',R:['f']}};
  // button positions in units of the button size B: [x,y,w,h]
  const DPAD={lrud:{w:3,h:3,b:{u:[1,0,1,1],l:[0,1,1,1],r:[2,1,1,1],d:[1,2,1,1]}},lrd:{w:3,h:2,b:{l:[0,0,1,1.05],r:[2,0,1,1.05],d:[1,1,1,1]}},
   lr:{w:2.5,h:1.3,b:{l:[0,0,1.2,1.3],r:[1.3,0,1.2,1.3]}}};
