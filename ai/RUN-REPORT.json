@@ -1,28 +1,23 @@
 {
-  "title": "Road Hopper grows up: a hopping frog, a living river and a lady frog to carry home",
-  "summary": "This week the AI spent the whole run on Road Hopper, which was the plainest game left: flat boxes for cars, brown bars for logs and an emoji frog that jumped a whole square at once. Everything is now drawn in code, the frog really hops, and there is a new reason to visit the logs: a lady frog who needs a lift home.",
+  "title": "Every game gets its own music, plus an options panel with a left-handed controller",
+  "summary": "Until now the arcade only beeped. This week a small built-in music player gives each of the eleven games its own original chiptune theme, with its own speed, key, mood and instruments, playing only while you play and getting a little faster as the levels go up. A new options panel lets you switch music and sound effects on or off separately and, on touch screens, flip the controller for left-handed players and choose the button size. The last football leftovers from the games' first home have also gone.",
   "kind": "enhance",
   "changes": [
-    {
-      "game": "hopper",
-      "what": [
-        "A new frog drawn in code: it faces the way it hops, glides through each hop with its legs kicking out, casts a shadow and blinks",
-        "A key pressed during a hop is remembered and used straight after, so quick taps are never lost",
-        "A rippling river, grassy bank with flowers, lily-pad homes set into a hedge, a road with kerbs and a double yellow line, and paving where you start",
-        "Logs with bark and cut ends; turtles with shells, heads and paddling flippers that turn orange and sink when they are about to dive",
-        "Cars, sports cars and lorries seen from above, with windscreens, headlights and tail lights",
-        "Better mishaps: a splash of rings in the water, a flattened frog on the road, a dizzy frog when time runs out",
-        "New: a lady frog (pink, with a bow) sometimes waits on a log. Hop onto her log to pick her up and carry her home for a bonus",
-        "The fly in the homes is drawn in code with buzzing wings; the snake on the bank (from level 2) now slithers",
-        "From level 2 the traffic and river are shuffled a little: lanes may run the other way and speeds vary",
-        "The time bar turns yellow, then flashes red with a ticking sound in the last five seconds; the level is shown at the bottom",
-        "New description on the arcade list"
-      ],
-      "why": "Road Hopper looked the most dated of the eleven and had been on the AI's to-do list since the first run. Making the frog hop smoothly makes the game feel more responsive, and the lady frog gives a reason to take a risk on the river."
-    }
+    {"game": "all", "what": ["Background music for every game: each has its own theme, composed in code from a short recipe (tempo, key, mood, chord pattern, lead and bass sounds, drum beat)", "Music plays only during play: silent on the title screen, when paused and after game over, and it speeds up slightly with each level", "A short game-over tune in each game's own key", "The sound button in the top bar becomes an Options button (⚙): sound effects on/off, music on/off, left- or right-handed controller and small, medium or large buttons on touch screens; choices are remembered on the device and opening it pauses the game", "Keyboard shortcuts: M switches music on and off, N switches sound effects", "Sound settings are now saved under the arcade's own 'retro:enhanced:' storage keys (an old mute setting is carried over)"], "why": "Stuart asked for something across all the games. Music changes the feel of every game at once, and it had been on my list since the first run. The left-handed controller had been waiting since run 2, when I rebuilt the touch buttons; a settings panel keeps the top bar from getting more crowded on a folded phone."},
+    {"game": "invaders", "what": ["Own theme: a tense minor-key march", "The football penalty shoot-out bonus round is retired; the maths, meteor and UFO bonus rounds take turns", "Description now says 'Defend the base'"], "why": "The penalty round and 'defend the pitch' were leftovers from the maths app the games came from and didn't fit a space game."},
+    {"game": "maze", "what": ["Own theme: a bouncy, quick major-key tune with a walking bass"], "why": "Part of music for every game."},
+    {"game": "meteor", "what": ["Own theme: slow and spacey, soft lead with a shimmering broken-chord backing"], "why": "Part of music for every game; deep space should feel calmer and wider than the others."},
+    {"game": "guardian", "what": ["Own theme: fast minor-key tune with a driving bass"], "why": "Part of music for every game."},
+    {"game": "ladder", "what": ["Own theme: a jaunty 'oom-pah' tune"], "why": "Part of music for every game."},
+    {"game": "racer", "what": ["Own theme: the fastest of the eleven, with a driving bass under the engine sound"], "why": "Part of music for every game."},
+    {"game": "snake", "what": ["Own theme: a gentle garden tune with soft drums"], "why": "Part of music for every game; it matches the garden look from run 1."},
+    {"game": "pinball", "what": ["Renamed Star Pinball: the G-O-A-L lanes now spell S-T-A-R for an extra ball", "Own theme with a sparkling broken-chord backing", "Its flipper buttons stay left and right even with the left-handed controller switched on"], "why": "GOAL was the other football leftover. A pinball table's buttons are its two flippers, so swapping them for left-handers would make no sense."},
+    {"game": "bricks", "what": ["Own theme: a steady, punchy tune"], "why": "Part of music for every game."},
+    {"game": "hopper", "what": ["Own theme: a bouncy, swinging tune with an 'oom-pah' bass"], "why": "Part of music for every game; it suits the hopping frog from run 3."},
+    {"game": "blocks", "what": ["Own theme: a thoughtful puzzle tune in a slightly exotic minor key"], "why": "Part of music for every game."}
   ],
   "new_games": [],
   "retired_games": [],
-  "tested": "Quick and full test rig on the AI-enhanced side (all screen sizes from the folded Fold to 4K, upright and sideways). Looked at pictures of the title screen, play, the lady frog on a log and a road accident, on a laptop window and the folded Fold. Drove the game in a browser with real key presses and with a simulated player to check hopping, scoring, the lady frog appearing, and that there are no errors.",
-  "next": "A left-handed option for the touch controls, remembered per device. Then Brick Blaster gets the same treatment, or shared background music across the arcade."
+  "tested": "Quick and full test rigs on the AI-enhanced side. Drove every game in a browser to check the music starts after Space, stops when paused and throws no errors; rendered each theme off-line to check its loudness sits well below the sound effects and never clips. Checked the options panel by mouse and keyboard (Escape and Enter close it, a game that was already paused stays paused). Looked at pictures of the panel on the folded Fold and the Fold on its side, and the left-handed controller on a phone and sideways, and Star Pinball's table.",
+  "next": "Let each game change its music with the action (a faster tune for a bonus round or the last life), a short tune when a level is cleared, and perhaps a music test page. Then back to polishing a single game: Brick Blaster is the plainest one left."
 }

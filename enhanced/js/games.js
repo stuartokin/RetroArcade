@@ -4,7 +4,7 @@
 // Each game: create(env) → {W,H,score,lives,level,levelName,over, update(dt,inp), render(ctx), swipe?(dx,dy), pointer?(fx)}.
 // inp = {l,r,u,d,f} (held buttons). Scores are deliberately big — players like to score thousands!
 const GAME_LIST=[
- {id:'invaders',name:'Invaders',icon:'👾',desc:'Defend the pitch — and a bonus game after every wave.'},
+ {id:'invaders',name:'Invaders',icon:'👾',desc:'Defend the base — and a bonus game after every wave.'},
  {id:'maze',name:'Maze Muncher',icon:'🟡',desc:'Munch every dot. Grab a power dot to chase the monsters!'},
  {id:'meteor',name:'Meteor Storm',icon:'☄️',desc:'Rotate, thrust and blast the meteors in deep space.'},
  {id:'guardian',name:'Planet Guardian',icon:'🚀',desc:'Fly over the planet and stop the landers taking people.'}];
@@ -37,7 +37,7 @@ function makeInvaders(env){
  const press=inp=>{const f=inp.f&&!held;held=inp.f;return f;};
  const add=(n,x,y)=>{G.score+=n;if(bon)bon.earned+=n;boom.push({x,y,t:.8,pts:n});};
  // ---------- bonus rounds ----------
- const KINDS=['penalty','maths','meteors','ufo'];
+ const KINDS=['maths','meteors','ufo']; // run 4: the football penalty round is retired
  function newQ(){const t=R(0,2);let a,b,ans,txt;if(t===0){a=R(3,12);b=R(3,12);ans=a*b;txt=`${a} × ${b}`;}else if(t===1){a=R(15,79);b=R(12,59);ans=a+b;txt=`${a} + ${b}`;}else{a=R(40,99);b=R(11,a-5);ans=a-b;txt=`${a} − ${b}`;}
   const o=new Set([ans]);while(o.size<4){const d=ans+pick([-10,-2,-1,1,2,10,R(-12,12)]);if(d>0)o.add(d);}
   bon.q={txt,ans};bon.bub=[...o].sort(()=>Math.random()-.5).map((v,i)=>({v,x:70+i*112,y:R(200,330),vx:pick([-1,1])*R(40,60+G.level*6)}));}
@@ -697,7 +697,7 @@ function makePinball(env){
   for(const fx of fl)flipHit(b,fx);
   if(b.inLane&&b.x<LANE-4)b.inLane=false;
   for(const ln of lanes)if(!ln.lit&&Math.hypot(b.x-ln.x,b.y-ln.y)<14){ln.lit=true;add(1000,ln.x,ln.y-16);env.beep(1500,.08,'triangle',.04);
-   if(lanes.every(l=>l.lit)){add(20000,200,140);G.lives++;banner={t:1.6,text:'GOAL! EXTRA BALL',color:'cycle'};FX.burst(200,120,Retro.CYCLE,60,260,1.3,3);env.beep(660,.5,'triangle',.06,2);setTimeout(()=>lanes.forEach(l=>l.lit=false),1200);}}}
+   if(lanes.every(l=>l.lit)){add(20000,200,140);G.lives++;banner={t:1.6,text:'STAR! EXTRA BALL',color:'cycle'};FX.burst(200,120,Retro.CYCLE,60,260,1.3,3);env.beep(660,.5,'triangle',.06,2);setTimeout(()=>lanes.forEach(l=>l.lit=false),1200);}}}
  G.update=(dt,inp)=>{t+=dt;FX.update(dt);pops.forEach(p=>{p.t-=dt;p.y-=20*dt;});pops=pops.filter(p=>p.t>0);bumpers.forEach(b=>b.flash=Math.max(0,b.flash-dt));slings.forEach(s=>s.flash=Math.max(0,s.flash-dt));
   if(banner){banner.t-=dt;if(banner.t<=0){const f=banner.then;banner=null;if(f)f();}}
   spin.a+=spin.v*dt;spin.v*=Math.pow(.25,dt);if(spin.v<.3)spin.v=0;const turns=Math.floor(spin.a/Math.PI);if(turns>spin.last){spin.last=turns;add(100,52,176);env.beep(1800,.02,'square',.02);}
@@ -717,13 +717,13 @@ function makePinball(env){
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a0f3d');g.addColorStop(1,'#07102b');ctx.fillStyle=g;ctx.fillRect(-20,-20,W+40,H+40);
   // playfield art
   ctx.save();ctx.globalAlpha=.18;ctx.strokeStyle='#3fe0ff';for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(184,420,40+i*28,Math.PI*1.1,Math.PI*1.9);ctx.stroke();}ctx.restore();
-  Retro.text(ctx,'GOAL',184-46,150,4,'rgba(255,255,255,.08)');
+  Retro.text(ctx,'STAR',184-46,150,4,'rgba(255,255,255,.08)');
   // walls
   ctx.save();ctx.shadowColor='#3fe0ff';ctx.shadowBlur=8;ctx.strokeStyle='#64d9f5';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();for(const w of walls){ctx.moveTo(w[0],w[1]);ctx.lineTo(w[2],w[3]);}ctx.stroke();ctx.restore();
   // slings, bumpers, lanes, targets
   for(const sl of slings){const s=sl.s;ctx.strokeStyle=sl.flash>0?'#fff':'#ff4fd8';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(s[0],s[1]);ctx.lineTo(s[2],s[3]);ctx.stroke();}
   for(const b of bumpers){ctx.save();ctx.shadowColor='#ff4fd8';ctx.shadowBlur=b.flash>0?24:10;ctx.fillStyle=b.flash>0?'#ffe45e':'#b4237a';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b.x,b.y,b.r*.55,0,Math.PI*2);ctx.fill();Retro.text(ctx,'1K',b.x,b.y-3,1,'#b4237a','center');}
-  lanes.forEach((l,i)=>{ctx.fillStyle=l.lit?Retro.cyc(t,i):'#2a2f55';ctx.beginPath();ctx.arc(l.x,l.y,10,0,Math.PI*2);ctx.fill();Retro.text(ctx,'GOAL'[i],l.x,l.y-3,1,l.lit?'#000':'#9aa3c7','center');});
+  lanes.forEach((l,i)=>{ctx.fillStyle=l.lit?Retro.cyc(t,i):'#2a2f55';ctx.beginPath();ctx.arc(l.x,l.y,10,0,Math.PI*2);ctx.fill();Retro.text(ctx,'STAR'[i],l.x,l.y-3,1,l.lit?'#000':'#9aa3c7','center');});
   for(const tg of targets){ctx.fillStyle=tg.down?'#2a2f55':(Math.floor(t*3)%2?'#ffe45e':'#ff8a1c');ctx.fillRect(tg.x+2,tg.y-9,8,18);}
   Retro.text(ctx,`X${mult}`,34,282,1,'#ffe45e');
   // plunger lane
@@ -745,8 +745,8 @@ function makePinball(env){
   {name:'ALL TARGETS',pts:'MULTIPLIER',draw:(c,x,y)=>{for(let i=0;i<4;i++){c.fillStyle='#ff8a1c';c.fillRect(x-20+i*11,y-8,8,16);}}},
   {name:'SPINNER',pts:'100 A SPIN',draw:(c,x,y,tt)=>{const w=Math.abs(Math.cos(tt*6))*14+2;c.fillStyle='#ffe45e';c.fillRect(x-w,y-3,w*2,6);}},
   {name:'TARGETS TWICE',pts:'MULTIBALL',draw:(c,x,y)=>{c.fillStyle='#fff';c.beginPath();c.arc(x-8,y,7,0,Math.PI*2);c.fill();c.fillStyle='#ffd27a';c.beginPath();c.arc(x+8,y,7,0,Math.PI*2);c.fill();}},
-  {name:'SPELL GOAL',pts:'EXTRA BALL',draw:(c,x,y,tt)=>{'GOAL'.split('').forEach((ch,i)=>{c.fillStyle=Retro.cyc(tt,i);c.beginPath();c.arc(x-27+i*18,y,8,0,Math.PI*2);c.fill();Retro.text(c,ch,x-27+i*18,y-3,1,'#000','center');});}}].map(e=>({...e,color:'#ff4fd8'}));
- return Retro.intro(G,{title:'PINBALL GOAL',color:'cycle',sub:'FLIP IT - SPELL GOAL - GET THE MULTIPLIER',tableTitle:'POINTS',legend,stars:true,bg:'#120a2e',hi:env.hi,hint:'LEFT AND RIGHT FLIP - HOLD SPACE AND LET GO TO LAUNCH'});}
+  {name:'SPELL STAR',pts:'EXTRA BALL',draw:(c,x,y,tt)=>{'STAR'.split('').forEach((ch,i)=>{c.fillStyle=Retro.cyc(tt,i);c.beginPath();c.arc(x-27+i*18,y,8,0,Math.PI*2);c.fill();Retro.text(c,ch,x-27+i*18,y-3,1,'#000','center');});}}].map(e=>({...e,color:'#ff4fd8'}));
+ return Retro.intro(G,{title:'STAR PINBALL',color:'cycle',sub:'FLIP IT - SPELL STAR - GET THE MULTIPLIER',tableTitle:'POINTS',legend,stars:true,bg:'#120a2e',hi:env.hi,hint:'LEFT AND RIGHT FLIP - HOLD SPACE AND LET GO TO LAUNCH'});}
 
 // =====================================================================================================
 // 9. BRICK BLASTER (bat and ball, power-ups, a new wall every level)
@@ -960,7 +960,7 @@ function makeHopper(env){
   {name:'LADY FROG HOME',pts:'3,000',draw:(c,x,y)=>drawFrog(c,x,y,'u',0,PINK,.9)},
   {name:'RIDE THE LOGS',pts:'NOT THE WATER!',draw:(c,x,y)=>{c.fillStyle='#13489a';c.fillRect(x-34,y-13,68,26);drawLog(c,x-30,y-T/2,2);}}].map(e=>({...e,color:'#3cff6a'}));
  return Retro.intro(G,{title:'ROAD HOPPER',color:'#3cff6a',sub:'CROSS THE ROAD - RIDE THE RIVER - GET HOME',tableTitle:'POINTS PER LEVEL',legend,hi:env.hi,hint:'ARROWS OR SWIPE - ONE HOP PER PRESS'});}
-GAME_LIST.push({id:'pinball',name:'Pinball Goal',icon:'🎱',desc:'Flip it, spell G-O-A-L and build the multiplier!'},{id:'bricks',name:'Brick Blaster',icon:'🧱',desc:'Smash the wall with power-ups — a new wall every level.',two:'sim'},{id:'hopper',name:'Road Hopper',icon:'🐸',desc:'Hop the traffic, ride the river and carry the lady frog home.'});
+GAME_LIST.push({id:'pinball',name:'Star Pinball',icon:'🎱',desc:'Flip it, light S-T-A-R for an extra ball and build the multiplier!'},{id:'bricks',name:'Brick Blaster',icon:'🧱',desc:'Smash the wall with power-ups — a new wall every level.',two:'sim'},{id:'hopper',name:'Road Hopper',icon:'🐸',desc:'Hop the traffic, ride the river and carry the lady frog home.'});
 Object.assign(PADS,{pinball:[['l'],['f','r']],bricks:[['l','r'],['f']],hopper:[['l','r'],['u','d']]});
 Object.assign(GAMES,{pinball:makePinball,bricks:makeBricks,hopper:makeHopper});
 

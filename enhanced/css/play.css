@@ -78,3 +78,25 @@ body.touch.at-sides.solo #padR{display:flex}
 .over tr.me td{color:var(--gold);font-weight:700}
 .over .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .over .go{background:linear-gradient(90deg,#1aa7c9,#3fe0ff);color:#00121a;font-weight:800;border:0}
+/* Run 4: left-handed controller (D-pad on the right, actions on the left) */
+body.touch.lefty{grid-template-columns:minmax(0,1fr) minmax(0,var(--colL,1fr))}
+body.touch.lefty #padL{grid-area:padR;justify-content:flex-end}
+body.touch.lefty #padR{grid-area:padL;justify-content:flex-start}
+body.touch.lefty.solo{grid-template-columns:minmax(0,1fr)}
+body.touch.lefty.solo #padL{grid-area:padL;justify-content:center}
+body.touch.lefty.at-sides{grid-template-columns:var(--sideW,170px) minmax(0,1fr) var(--sideW,170px)}
+body.touch.lefty.at-sides #padL{grid-area:padR;justify-content:center}
+body.touch.lefty.at-sides #padR{grid-area:padL;justify-content:center}
+/* Run 4: the options panel */
+.opts .card{max-width:400px;text-align:left}
+.opts h2{text-align:center;margin:0 0 10px}
+.opts .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.opts .tog{min-width:118px;justify-content:center;font-weight:700;background:linear-gradient(90deg,#1aa7c9,#3fe0ff);color:#00121a;border:0}
+.opts .tog.off{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+.opts .seg{display:inline-flex;gap:4px}
+.opts .seg button{min-width:38px;justify-content:center;font-weight:700}
+.opts .seg button.sel{background:linear-gradient(90deg,#1aa7c9,#3fe0ff);color:#00121a;border-color:transparent}
+.opts .note{color:var(--mute);font-size:13px;margin:10px 0 0;text-align:center}
+.opts .touch-only{display:none}
+body.touch .opts .touch-only{display:flex}
+@media (max-height:420px){.opts .card{padding:10px 14px}.opts h2{margin:0 0 4px;font-size:18px}.opts .row{padding:3px 0}.opts .note{display:none}}

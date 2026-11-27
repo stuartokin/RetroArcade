@@ -147,3 +147,53 @@ was running another browser at the same time; it is not part of `enhanced/`.
 
 **Next.** Left-handed controller swap; then Brick Blaster polish or shared background music.
 Remaining football leftovers: Invaders' "defend the pitch" bonus round and Pinball's G-O-A-L.
+
+## Run 4 — 2026-11-27
+
+**Plan (written before building; Stuart asked for something across all the games).** The arcade is
+silent apart from beeps, and "shared background music" has been on my next list since run 1. The
+left-handed controller swap has been on it since run 2. Both lift every game at once, so this run:
+- **music for every game**: a small chiptune player in the shell (lead, bass and drums, scheduled on
+  the Web Audio clock), and each of the eleven games gets its own original theme with its own tempo,
+  key, mood and instruments. Music plays only while you are playing (not on the title screen, when
+  paused or after game over) and speeds up a little as the levels go up;
+- **an options panel** (⚙ in the bar, replacing the single 🔊 button so the bar doesn't get more
+  crowded on a folded phone): sound effects on/off, music on/off, and on touch screens a
+  left-handed controller (D-pad on the right) and a choice of button size. Choices are remembered on
+  the device. Opening it pauses the game;
+- the old mute setting is saved under a `retro:enhanced:` key, as the brief asks;
+- the last football leftovers go: Invaders loses its penalty shoot-out bonus round and the
+  "defend the pitch" description; Pinball's G-O-A-L lanes become S-T-A-R and the game becomes
+  "Star Pinball".
+
+**What I did.** Built everything in the plan.
+- `enhanced/js/music.js` (new, loaded before `host.js`): `Music.SONGS` holds a recipe per game
+  (bpm, root note, scale, chords for sections A and B, bass style, drum pattern, lead wave, arpeggio,
+  seed). `compose(id)` turns it into 16 bars (A A B A'): three one-bar motifs from a seeded random
+  generator, written as scale steps *relative to the chord*, so they follow the harmony; strong beats
+  land on chord tones; bar 4 of each section is a cadence. Chords on degrees 4–6 are dropped an
+  octave so the lead stays in roughly a two-octave range. `tick(ac,dest,id,playing,level)` is called
+  every frame by the shell and schedules ~0.18 s ahead on the audio clock; tempo rises 2 % per level
+  (up to 16 %). `jingle()` is the game-over tune. Music bus gain .55; measured RMS ≈ 0.017 against
+  0.04 for a typical beep.
+- `host.js`: options panel (`#opts` in `play.html`, styled in `play.css`), settings in
+  `retro:enhanced:opt:*` (`sfxOff`, `music`, `lefty`, `bsize`), `getAC()` creates/resumes the audio
+  context on any key or pointer press, M and N keys. Left-handed = `body.lefty` (CSS swaps the grid
+  areas) and the action cluster is mirrored in `clusterHTML`; `handed()` excludes pinball. Button
+  size multiplies `--b` (S .84, M 1, L 1.16), capped so it still fits.
+- Invaders: `'penalty'` taken out of `KINDS` (its code is still there, unused). Pinball: GOAL → STAR,
+  renamed Star Pinball in `games.json` and `GAME_LIST`.
+
+**Noticed.**
+- I can't hear the music, only measure it. I checked note ranges and loudness numerically and by
+  counting oscillators in a real page; whether the tunes are *catchy* is for people to judge. If a
+  theme grates, change its `seed` (a new melody) or its recipe; nothing else depends on them.
+- Snake doesn't move until you choose a direction, so my "wait for game over" drive never ended.
+- The options card on the Fold sideways (344 px high) only just fits; the note line is hidden there.
+
+**Next.** Music that reacts (bonus rounds, last life, level clear jingle); then Brick Blaster.
+
+**Tested.** Quick rig 502/502. The first full rig had one failure, a home-page preview video
+(`media/clips/original/hopper.mp4`) that didn't load while I was running other browsers alongside,
+the same thing as in run 3 and not part of `enhanced/`; the full rig run on its own passed
+1,255/1,255.

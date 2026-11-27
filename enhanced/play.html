@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07081a">
 <title>Retro Arcade</title>
-<link rel="stylesheet" href="css/play.css?v=r3">
+<link rel="stylesheet" href="css/play.css?v=r4">
 <script>window.SIDE={id:'enhanced',label:'AI-enhanced'};</script>
 </head>
 <body>
@@ -15,7 +15,7 @@
   <div class="hud" id="hud" aria-live="off"></div>
   <div class="ctl">
     <button type="button" id="btnPause" aria-label="Pause">⏸<span class="lbl"> Pause</span></button>
-    <button type="button" id="btnSound" aria-label="Sound">🔊</button>
+    <button type="button" id="btnOpts" aria-label="Options: sound, music and controls" aria-haspopup="dialog">⚙<span class="lbl"> Options</span></button>
     <button type="button" id="btnFull" aria-label="Full screen">⛶</button>
   </div>
 </header>
@@ -23,14 +23,26 @@
 <main class="stage" id="stage"><canvas id="cv" aria-label="Game"></canvas></main>
 <div class="pad" id="padR"></div>
 <p class="help" id="help"></p>
+<div class="over opts" id="opts" hidden role="dialog" aria-modal="true" aria-labelledby="optsH">
+  <div class="card">
+    <h2 id="optsH">⚙ Options</h2>
+    <div class="row"><span>🔊 Sound effects</span><button type="button" class="tog" id="optSfx" aria-pressed="true">On</button></div>
+    <div class="row"><span>🎵 Music</span><button type="button" class="tog" id="optMusic" aria-pressed="true">On</button></div>
+    <div class="row touch-only"><span>✋ Controller</span><button type="button" class="tog" id="optHand">Right-handed</button></div>
+    <div class="row touch-only"><span>🔘 Button size</span><span class="seg" id="optSize"><button type="button" data-v="s">S</button><button type="button" data-v="m">M</button><button type="button" data-v="l">L</button></span></div>
+    <p class="note">Saved on this device. Keys: M music, N sound, P pause.</p>
+    <div class="acts"><button type="button" id="btnOptsDone" class="go">✔ Back to the game</button></div>
+  </div>
+</div>
 <div class="over" id="over" hidden>
   <div class="card">
     <div id="overBody"></div>
     <div class="acts"><button type="button" id="btnAgain" class="go">🔄 Play again</button><a class="home btn" href="../">🎮 Other games</a></div>
   </div>
 </div>
-<script src="js/host.js?v=r3"></script>
-<script src="js/retro.js?v=r3"></script>
-<script src="js/games.js?v=r3"></script>
+<script src="js/music.js?v=r4"></script>
+<script src="js/host.js?v=r4"></script>
+<script src="js/retro.js?v=r4"></script>
+<script src="js/games.js?v=r4"></script>
 </body>
 </html>
