@@ -42,17 +42,18 @@
 
 ## Next
 
-- [ ] Stuart to try on his devices: tiles and carousel, search, previews, Snake original vs AI.
-- [ ] Watch the next Sunday run (22 Nov): does it open a pull request (the Actions setting), re-record the
-      clips of the changed games, and stay inside the $10 cap?
+- [ ] Stuart to try: run 4 (music, options panel, left-handed controller on the Fold) and run 5 (Planet
+      Guardian); the log entries for both.
+- [x] Watch the Sunday runs: pull requests open and merge, clips re-record, costs well inside the cap
+      ($1.04–2.50 a run so far). Two runs were held back on 27 Nov, both by our side (rig flakes, then a
+      push during the run); both fixed and published.
+- [ ] Watch the first monthly new-game run (Sun 6 Dec 2026): does it pitch, finish a game inside 250
+      steps / $15, and do the new tile, preview and log entry look right?
+- [ ] Don't push to `main` while an evolve run is going (the publish step copes now, but it's cleaner).
+- [ ] Review cost and log quality after run 8 or so; adjust budgets.
 - [ ] An old commit message (1.2.0) mentions a commercial game name. Left as it is (only in the history);
       rewriting `main` would need Stuart's say-so.
-
 - [x] Card on HorizonQ Observatories ("Just for fun"), with a trailer (16 Nov 2026).
-- [ ] After ~4 runs: review cost per run and the quality of the log; adjust the budget.
-
-- [ ] Watch the first monthly new-game run (Sun 6 Dec 2026): does it pitch, finish a game inside 250
-      steps / $15, and does the new tile, preview and log entry look right?
 
 ## Parked ideas
 
