@@ -2,6 +2,13 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.2.3 — 27 Nov 2026
+
+- **Run workflow → "game" box takes the game's name** ("Planet Guardian", any case, or a clear part such
+  as "pinball") as well as its id. Two manual runs had stopped in seconds because "planet guardian"
+  isn't the id (`guardian`). If nothing or more than one game matches, the run stops with a plain
+  message listing the choices. The log entry records the id.
+
 ## 1.2.2 — 27 Nov 2026
 
 - Rig fixes (test timing only; no change to what the games must do). Run 4 was held back by two false

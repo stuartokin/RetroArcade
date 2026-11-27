@@ -20,7 +20,7 @@ on:
         options: [ai-decides, one-game, all-games, new-game]
         default: ai-decides
       game:
-        description: 'For one-game: which game id (e.g. maze). Leave blank to let the AI choose.'
+        description: 'For one-game: which game, by name or id (e.g. Planet Guardian or guardian). Leave blank to let the AI choose.'
         required: false
         default: ''
       note:
@@ -164,6 +164,7 @@ jobs:
           RUN: ${{ steps.prep.outputs.RUN }}
           RUN3: ${{ steps.prep.outputs.RUN3 }}
           DATE: ${{ steps.prep.outputs.DATE }}
+          GAME: ${{ steps.prep.outputs.GAME }}
           RESULT_FILE: ${{ runner.temp }}/result.json
           PR_BODY: ${{ runner.temp }}/pr-body.md
           ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

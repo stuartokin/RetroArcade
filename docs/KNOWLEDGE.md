@@ -70,7 +70,7 @@ the rig read these. Ids are permanent: the history is keyed on them.
 - **When:**
   - Sundays at 05:17 UTC
   - or by hand from the Actions tab, with inputs: focus (`ai-decides` / `one-game` / `all-games` /
-    `new-game`), game, a note to the AI, budget (USD, default 10) and max steps (default 150)
+    `new-game`), game (name or id, e.g. "Planet Guardian"; matched by `prepare.mjs`), a note to the AI, budget (USD, default 10) and max steps (default 150)
 - **Steps:**
   1. **switch**: the kill switch.
   2. **prepare**: run number, and a prompt made of `ai/BRIEF.md` plus this run's task. If 4+ runs

@@ -32,3 +32,6 @@ See also `docs/SHARED-LESSONS.md` in stuartokin.github.io.
    intro's "key already held" guard), and Chrome aborting a preview-video download. Wait for a state
    change instead of a fixed pause, and only ignore the exact harmless error (`ERR_ABORTED` on video),
    not all failed requests. (27 Nov 2026)
+10. **Inputs typed into "Run workflow" must accept what a person would type.** The game box wanted the
+    id (`guardian`); Stuart typed the name twice and both runs failed with a developer error. Match
+    names case-insensitively and fail with a plain list of choices. (27 Nov 2026)
