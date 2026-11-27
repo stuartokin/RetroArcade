@@ -197,3 +197,58 @@ left-handed controller swap has been on it since run 2. Both lift every game at 
 (`media/clips/original/hopper.mp4`) that didn't load while I was running other browsers alongside,
 the same thing as in run 3 and not part of `enhanced/`; the full rig run on its own passed
 1,255/1,255.
+
+## Run 5 — 2026-11-27
+
+**Plan (written before building; Stuart asked for Planet Guardian only).** I took pictures of it and
+read its code. It's the most bare-looking game left: a thin orange line for the ground, little
+blocky sprites, a rainbow dash for the laser and a black sky. More important, its enemy line-up and
+wording (lander, mutant, baiter, bomber, pod, swarmer, "humanoids", "attack wave completed", smart
+bomb) follow one well-known commercial game almost word for word. The brief asks for original names,
+so the game needs its own identity. Two bugs too: landers dive through the ground while they line up
+on a person, and the stars jump when the camera wraps round the planet. Plan:
+- **its own cast**: colonists who live in glowing domes; Grabbers (saucers with a tractor beam),
+  Frenzies (what a Grabber becomes if it escapes with a colonist), Hunters (come if you dawdle),
+  Seeders (sow spore mines), Hives (burst into Stingers); a Nova bomb;
+- **everything drawn in code**: night-sky gradient, a ringed moon, far hills on a parallax layer,
+  filled green hills with a bright ridge, crystals, colonists' domes (a dome goes dark when its
+  colonist is lost), a sleek ship that tilts, flips and leaves an engine trail, a glowing laser,
+  shock rings on explosions;
+- **help for the player**: a siren and a flashing arrow at the edge of the screen when a colonist is
+  being carried off out of sight, and blinking marks on the scanner;
+- a slightly kinder start (longer safe time, slower enemy shots in the first waves); a new HUD and
+  wave-clear screen; the bug fixes above.
+
+**What I did.** Built everything in the plan, all inside `makeGuardian` in `enhanced/js/games.js`
+(plus the description in `games.json` and `GAME_LIST`, and `?v=r5` in `play.html`). The game rules,
+scoring, wave sizes and the internal type letters (`L M B O P S`) are unchanged; only the names on
+screen changed (`NAME` table). Notes for later:
+- Drawing is all paths now: `drawShip`, `drawGrabber`, `drawFrenzy`, `drawHunter`, `drawSeeder`,
+  `drawHive`, `drawStinger` (through `drawEnemy`), `drawColonist`, `drawDome`, `scene()`. Glows use
+  `glow()`, a cached radial-gradient sprite drawn with `'lighter'`; it keeps the caller's alpha (I
+  first reset alpha to 1 inside it, which undid the ship's half-see-through flicker).
+- Each colonist belongs to a dome (`homes[i]`, `p.home`) and wanders within 60 px of it.
+- Parallax layers repeat at whole fractions of the planet's width (stars WW/4 at 0.25, far hills and
+  big stars WW/2 at 0.5) so nothing jumps when the camera wraps. The moon drifts with `sin(camX)`.
+- `e.wait` (5–10 s in waves 1–2, 1–4 s later) delays a Grabber's first grab. Grabbers, Seeders and
+  Hives are kept 12 px above the ground. Hunters are capped at three.
+- Respawn moves Frenzies, Hunters and Stingers within 420 px elsewhere: an autopilot that sat still
+  showed Frenzies waiting at the respawn point and taking a ship every four seconds.
+- `G._peek()` returns ship, enemies, colonists, `planetGone`, bombs and tally for test drives. You
+  can drive the game off-screen with `GAMES.guardian(env)` in the page and set `G.lives=99`.
+
+**Noticed.**
+- The shield blink used to hide the ship completely half the time, so the log's picture (taken two
+  seconds in) could show no ship at all. It now flickers half-see-through instead.
+- A ship that doesn't move is still shot within about eight seconds. That's fair, so I left it.
+- On the folded Fold upright, the game is small and there's a lot of empty space above it. Planet
+  Guardian could show more sky on tall screens (a taller `H` chosen at start), but the HUD and
+  banners assume 450, so that is a job for another run.
+
+**Tested.** Quick rig 502/502, full rig 1,255/1,255, then Planet Guardian alone again after the last
+drawing tweaks (455/455). Real key presses at 1000×700, the folded Fold and the Fold on its side; an
+autopilot with extra lives through six waves without errors; looked at the title, play, off-screen
+alarm, wave-clear and lost-colony screens.
+
+**Next.** A taller view for Planet Guardian on upright phones; then Brick Blaster polish, or music
+that reacts (last life, wave clear).

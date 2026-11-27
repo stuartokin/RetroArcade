@@ -359,6 +359,46 @@
    "model": null,
    "actions": "https://github.com/stuartokin/RetroArcade/actions/runs/46030779546",
    "pr": "https://github.com/stuartokin/RetroArcade/pull/3"
+  },
+  {
+   "run": 5,
+   "date": "2026-11-27",
+   "kind": "enhance",
+   "focus": "one-game",
+   "focus_game": "guardian",
+   "title": "Planet Guardian gets its own cast, a living planet and an alarm for kidnapped colonists",
+   "summary": "This week was all about Planet Guardian. Its enemies and wording followed one well-known old arcade game too closely, so it now has its own story: you protect colonists who live in glowing domes from Grabbers, Frenzies, Hunters, Seeders, Hives and Stingers. Everything is now drawn in code, with a night sky, a ringed moon, hills, a sleeker ship and glowing lasers. When a colonist is carried off out of sight, a siren sounds and an arrow flashes at the edge of the screen.",
+   "changes": [
+    {
+     "game": "guardian",
+     "what": [
+      "New, original cast: colonists instead of 'humanoids'; Grabbers, Frenzies, Hunters, Seeders, Hives and Stingers instead of names borrowed from an old commercial game; a Nova bomb; 'Wave clear' and 'Colony lost' screens",
+      "Every enemy, the ship and the colonists are now drawn in code with soft glows instead of small blocky sprites: the Grabber is a saucer with swaying legs and a tractor beam, the Frenzy a spiky, angry ball that watches you, the Hive a honeycomb, the Stingers little striped wasps",
+      "A real planet: night-sky gradient, a ringed moon, far hills that scroll more slowly, filled green hills with a glowing ridge and crystals, and a dome for each colonist that goes dark if they are lost. When the colony falls the land turns red and the domes go dark",
+      "A sleeker ship that tilts as it climbs or dives, turns round smoothly, leaves an engine trail and shows a shield bubble while it is protected; brighter lasers; shock rings when things explode",
+      "A siren and 'HELP!' when a colonist is grabbed, and a flashing arrow at the edge of the screen pointing to any colonist being carried off out of sight; carried colonists blink on the scanner",
+      "Fairer play: Grabbers wait a few seconds before their first grab in the first two waves, they rise a little more slowly, enemy shots are slower in the first two waves, at most three Hunters at once, and chasers near you are moved away when you come back after losing a ship",
+      "Fixes: Grabbers no longer sink into the ground while lining up, and the stars no longer jump when you fly all the way round the planet",
+      "New heads-up display: bigger colonist count, ship icons for lives and star icons for Nova bombs"
+     ],
+     "why": "Stuart asked for this run to focus on Planet Guardian. It was the plainest-looking game left, and its names and wording broke the arcade's rule of being original, so it needed a new identity as well as a new look. The alarm and arrow help with the hardest part of the game: noticing a kidnapping that is happening off screen."
+    }
+   ],
+   "new_games": [],
+   "retired_games": [],
+   "tested": "Full test rig on the AI-enhanced side: 1,255 checks passed (every screen size from a 344-pixel-wide folded phone to 4K, upright and sideways, keyboard and touch), and the Planet Guardian checks again after the last small changes (455 passed). I played it with real key presses and drove it with an autopilot through six waves, checked the off-screen alarm, the wave-clear screen and the lost-colony scene, and looked at pictures on a desktop, a folded Fold upright and a Fold on its side.",
+   "next": "On a tall, narrow phone the wide game still leaves empty space above and below; a future run could let Planet Guardian show more sky on tall screens. After that, back to Brick Blaster, or music that reacts to what is happening in the game.",
+   "status": "live",
+   "archive": "archive/run-005/",
+   "shots": {
+    "guardian": "media/runs/005/guardian.jpg"
+   },
+   "cost_usd": 2.5,
+   "turns": 55,
+   "minutes": 18,
+   "model": null,
+   "actions": "https://github.com/stuartokin/RetroArcade/actions/runs/46046177448",
+   "pr": "https://github.com/stuartokin/RetroArcade/pull/4"
   }
  ]
 }

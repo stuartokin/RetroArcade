@@ -31,7 +31,7 @@
    "id": "guardian",
    "name": "Planet Guardian",
    "icon": "🚀",
-   "desc": "Fly over the planet and stop the landers taking people.",
+   "desc": "Fly over the planet and save the colonists from the grabbers.",
    "play": "play.html?game=guardian",
    "origin": "classic"
   },
@@ -92,5 +92,5 @@
    "origin": "classic"
   }
  ],
- "run": 4
+ "run": 5
 }
