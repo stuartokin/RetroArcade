@@ -22,6 +22,8 @@
 - **27 Nov 2026**: `tests/check.js` timing fixes (wait for the intro to draw and up to 2 s for a start;
   ignore aborted video downloads). This changes the AI's conditions only by removing two false failures
   that held back run 4; every check asks the same of the games as before.
+- **27 Nov 2026**: run 4 published by hand after the fix (Stuart chose "publish"); PR #3 closed by the
+  push. If a run is held back by a rig fault again, the same recipe works: KNOWLEDGE → evolve.
 
 ## Open / waiting on Stuart
 

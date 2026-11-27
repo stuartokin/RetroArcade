@@ -7,7 +7,7 @@
    "id": "invaders",
    "name": "Invaders",
    "icon": "👾",
-   "desc": "Defend the pitch — and a bonus game after every wave.",
+   "desc": "Defend the base — and a bonus game after every wave.",
    "play": "play.html?game=invaders",
    "origin": "classic"
   },
@@ -61,9 +61,9 @@
   },
   {
    "id": "pinball",
-   "name": "Pinball Goal",
+   "name": "Star Pinball",
    "icon": "🎱",
-   "desc": "Flip it, spell G-O-A-L and build the multiplier!",
+   "desc": "Flip it, light S-T-A-R for an extra ball and build the multiplier!",
    "play": "play.html?game=pinball",
    "origin": "classic"
   },
@@ -92,5 +92,5 @@
    "origin": "classic"
   }
  ],
- "run": 3
+ "run": 4
 }

@@ -20,7 +20,11 @@ const Host=(()=>{
  const HOME=location.pathname.replace(/\/(original|enhanced|archive\/[^/]+)\/[^/]*$/,'/')||'/';
  const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
  let gameId=qs.get('game')||'invaders',info=null,game=null,cv,ctx,raf=0,last=0,paused=false,over=false,view='game';
- let keys={},latch={},pad={l:false,r:false,u:false,d:false,f:false,b:false},ac=null,muted=store.get('retro:mute',false);
+ let keys={},latch={},pad={l:false,r:false,u:false,d:false,f:false,b:false},ac=null;
+ // Run 4: player options, remembered on this device (keys start retro:<side>:, as the brief asks)
+ const optKey=k=>`retro:${SIDE.id}:opt:${k}`;
+ let muted=store.get(optKey('sfxOff'),store.get('retro:mute',false)),musicOn=store.get(optKey('music'),true),lefty=store.get(optKey('lefty'),false),bsize=store.get(optKey('bsize'),'m'),optsOpen=false,pausedBeforeOpts=false;
+ const getAC=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended'&&ac.resume){const p=ac.resume();if(p&&p.catch)p.catch(()=>{});}}catch(e){}return ac;};
  const scoreKey=()=>`retro:${SIDE.id}:${gameId}:scores`;
 
  // ---------- sound ----------
@@ -53,7 +57,9 @@ const Host=(()=>{
   if(!paused&&document.visibilityState==='visible'){game.update(dt,inp());latch={};if(game.over){finish();return;}}
   ctx.setTransform(1,0,0,1,0,0);ctx.save();ctx.scale(cv.width/game.W,cv.height/game.H);game.render(ctx);
   if(paused){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,game.W,game.H);Retro.text(ctx,'PAUSED',game.W/2,game.H/2-20,4,'#ffe45e','center');Retro.text(ctx,'PRESS P OR TAP PLAY',game.W/2,game.H/2+24,2,'#fff','center');}
-  ctx.restore();hud();raf=requestAnimationFrame(loop);}
+  ctx.restore();hud();
+  if(typeof Music!=='undefined')Music.tick(ac,null,gameId,musicOn&&!paused&&!over&&!game.intro&&document.visibilityState==='visible',game.level);
+  raf=requestAnimationFrame(loop);}
 
  // ---------- fitting the game to the screen ----------
  function fit(){if(!cv||!game)return;layout();const st=$('stage'),r=st.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
@@ -63,15 +69,25 @@ const Host=(()=>{
   try{if(on&&!fs){const r=el.requestFullscreen||el.webkitRequestFullscreen;if(r){const p=r.call(el);if(p&&p.catch)p.catch(()=>{});}}else if(!on&&fs){const x=document.exitFullscreen||document.webkitExitFullscreen;if(x){const p=x.call(document);if(p&&p.catch)p.catch(()=>{});}}}catch(e){}
   setTimeout(fit,80);setTimeout(fit,400);}
  function setPause(v){if(over)return;paused=v===undefined?!paused:v;$('btnPause').innerHTML=paused?'▶<span class="lbl"> Play</span>':'⏸<span class="lbl"> Pause</span>';}
- function setMute(v){muted=v;store.set('retro:mute',muted);if(muted)engine.stop();$('btnSound').textContent=muted?'🔇':'🔊';$('btnSound').title=muted?'Sound off':'Sound on';}
+ function setMute(v){muted=v;store.set(optKey('sfxOff'),muted);if(muted)engine.stop();showOpts();}
+ function setMusic(v){musicOn=v;store.set(optKey('music'),musicOn);if(!musicOn&&typeof Music!=='undefined')Music.stop();if(musicOn)getAC();showOpts();}
+ function setHand(v){lefty=v;store.set(optKey('lefty'),lefty);document.body.classList.toggle('lefty',handed());buildPad();showOpts();fit();}
+ function setSize(v){bsize=['s','m','l'].includes(v)?v:'m';store.set(optKey('bsize'),bsize);showOpts();fit();}
+ function showOpts(){const t=(id,on,a,b)=>{const el=$(id);if(!el)return;el.textContent=on?a:b;el.setAttribute('aria-pressed',on?'true':'false');el.classList.toggle('off',!on);};
+  t('optSfx',!muted,'On','Off');t('optMusic',musicOn,'On','Off');const h=$('optHand');if(h)h.textContent=lefty?'Left-handed':'Right-handed';
+  document.querySelectorAll('#optSize [data-v]').forEach(b=>{b.classList.toggle('sel',b.dataset.v===bsize);b.setAttribute('aria-pressed',b.dataset.v===bsize?'true':'false');});
+  const o=$('btnOpts');if(o)o.firstChild.textContent=muted&&!musicOn?'🔇':'⚙';}
+ function openOpts(v){if(over&&v)return;if(v===optsOpen)return;optsOpen=v;$('opts').hidden=!v;
+  if(v){pausedBeforeOpts=paused;if(game&&game.onPause)game.onPause('open');else setPause(true);setTimeout(()=>$('btnOptsDone').focus(),30);}
+  else{if(!pausedBeforeOpts&&paused)setPause(false);keys={};latch={};}}
 
  // ---------- start / finish ----------
- function start(){over=false;paused=false;view='game';keys={};latch={};Object.keys(pad).forEach(k=>pad[k]=false);$('over').hidden=true;
+ function start(){over=false;paused=false;if(typeof Music!=='undefined')Music.restart();view='game';keys={};latch={};Object.keys(pad).forEach(k=>pad[k]=false);$('over').hidden=true;
   game=GAMES[gameId]({theme:'classic',avatar:null,beep,noise,engine,hi:best,players:1,names:['Player'],touch:matchMedia('(pointer:coarse)').matches,
    store:{get:()=>store.get(`retro:${SIDE.id}:${gameId}:save`,null),set:v=>store.set(`retro:${SIDE.id}:${gameId}:save`,v)}});
   hudTxt='';fit();setPause(false);last=0;if(!raf)raf=requestAnimationFrame(loop);
   window.ARCADE.ready=true;}
- function finish(){view='over';over=true;engine.stop();cancelAnimationFrame(raf);raf=0;
+ function finish(){view='over';over=true;engine.stop();if(typeof Music!=='undefined'){Music.stop();if(!muted)Music.jingle(ac,gameId);}cancelAnimationFrame(raf);raf=0;
   const prev=best(),mine=record(game.score),T=table();
   $('overBody').innerHTML=`<div class="big">💥</div><h2>Game over</h2><p class="sc">${esc(info.name)}: <b>${fmtN(game.score)}</b> points · ${esc(game.levelName||'Level')} ${game.level||1}</p>${game.score>prev&&game.score>0?'<p class="new">🏆 New high score on this device!</p>':''}
    ${T.length?`<table><thead><tr><th>#</th><th>Score</th><th>Date</th></tr></thead><tbody>${T.map((r,i)=>`<tr class="${r===mine?'me':''}"><td>${i+1}</td><td>${fmtN(r.s)}</td><td>${new Date(r.d+'T12:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</td></tr>`).join('')}</tbody></table>`:''}`;
@@ -90,13 +106,15 @@ const Host=(()=>{
   lr:{w:2.5,h:1.3,b:{l:[0,0,1.2,1.3],r:[1.3,0,1.2,1.3]}}};
  const ACTS=[null,{w:1.35,h:1.35,p:[[0,0,1.35]]},{w:2,h:1.8,p:[[.9,.7,1.1],[0,0,1]]},{w:2.2,h:2.05,p:[[1.15,1.05,1.05],[0,1.05,1],[.6,0,.95]]}];
  const ctl=()=>CTRL[gameId]||{L:'lr',R:['f']};
+ // left-handed: D-pad on the right, actions on the left (not pinball, whose buttons are its two flippers)
+ const handed=()=>lefty&&gameId!=='pinball';
  const side=v=>!v?{w:0,h:0}:typeof v==='string'?DPAD[v]||DPAD.lr:(v===ctl().R&&ctl().RA)||ACTS[Math.min(3,v.length)];
  const isDpad=v=>typeof v==='string';
  function btnHTML(k,x,y,w,h,cls){const lab=(LABEL[gameId]||{})[k]||k,i=lab.indexOf(' '),ic=i<0?lab:lab.slice(0,i),tx=i<0?'':lab.slice(i+1);
   return `<button type="button" data-pad="${k}" class="pad-${k} ${cls}" style="left:calc(var(--b)*${x});top:calc(var(--b)*${y});width:calc(var(--b)*${w});height:calc(var(--b)*${h})" aria-label="${esc(tx||k)}"><span class="ic">${esc(ic)}</span>${tx?`<span class="tx">${esc(tx)}</span>`:''}</button>`;}
  function clusterHTML(v){if(!v)return'';const S=side(v);let h='';
   if(isDpad(v)){for(const k in S.b){const [x,y,w,hh]=S.b[k];h+=btnHTML(k,x,y,w,hh,'dir');}if(v==='lrud')h+='<i class="hub" style="left:calc(var(--b)*1);top:calc(var(--b)*1);width:var(--b);height:var(--b)"></i>';}
-  else v.slice(0,3).forEach((k,i)=>{const [x,y,d]=S.p[i];h+=btnHTML(k,x,y,d,d,'act'+(i?'':' main'));});
+  else v.slice(0,3).forEach((k,i)=>{const [x,y,d]=S.p[i];h+=btnHTML(k,handed()?S.w-x-d:x,y,d,d,'act'+(i?'':' main'));});
   return `<div class="${isDpad(v)?'dpad':'acts'}" style="width:calc(var(--b)*${S.w});height:calc(var(--b)*${S.h})">${h}</div>`;}
  const buzz=()=>{try{if(navigator.vibrate&&!muted)navigator.vibrate(8);}catch(e){}};
  const press=k=>{if(!pad[k]){latch[k]=true;}pad[k]=true;document.querySelectorAll(`.pad [data-pad="${k}"]`).forEach(b=>b.classList.add('on'));};
@@ -134,7 +152,7 @@ const Host=(()=>{
   const kB=Math.min(kW,(H-8-uh*bBase-pad)/gH),spare=H-8-gH*kW-pad,bBottom=Math.min(bWide,Math.max(bBase,spare/uh));
   // either side: buttons sized from the height
   const bSide=Math.max(38,Math.min(72,(H-pad)/(uh+.4),(W*.2)/uside)),kS=Math.min((W-8-2*(uside*bSide+pad))/gW,(H-8)/gH);
-  const useSide=W>H?kS>=kB*.9:kS>kB*1.15,b=useSide?bSide:bBottom;
+  const useSide=W>H?kS>=kB*.9:kS>kB*1.15,mul={s:.84,m:1,l:1.16}[bsize]||1,b=useSide?Math.min(bSide*mul,(W*.26)/uside):Math.min(bBottom*mul,bWide);
   B.classList.toggle('at-sides',useSide);B.classList.toggle('at-bottom',!useSide);
   B.style.setProperty('--b',Math.floor(b)+'px');B.style.setProperty('--sideW',Math.ceil(uside*b+pad)+'px');
   B.style.setProperty('--colL',Math.ceil(L.w*b+16)+'px');B.style.setProperty('--padH',Math.ceil(uh*b+pad)+'px');}
@@ -156,11 +174,14 @@ const Host=(()=>{
   $('gName').textContent=`${info.icon} ${info.name}`;
   const run=archived?(location.pathname.match(/archive\/run-0*(\d+)/)||[])[1]:null;
   $('gSide').innerHTML=archived?`<span class="l">AI run ${esc(run)} (past version)</span><span class="s">Run ${esc(run)}</span>`:`<span class="l">${esc(SIDE.label)}</span><span class="s">${SIDE.id==='enhanced'?'AI':esc(SIDE.label)}</span>`;$('gSide').className='side '+(archived?'past':SIDE.id);
-  $('help').textContent=`Keys: arrows or W A S D to move, Space to fire, P to pause.${HELP[gameId]||''}`;
+  $('help').textContent=`Keys: arrows or W A S D to move, Space to fire, P to pause, M music.${HELP[gameId]||''}`;
   cv=$('cv');ctx=cv.getContext('2d');buildPad();
-  addEventListener('keydown',e=>{if(e.target&&(e.target.tagName==='INPUT'||e.target.isContentEditable))return;
+  addEventListener('keydown',e=>{if(e.target&&(e.target.tagName==='INPUT'||e.target.isContentEditable))return;getAC();
    if(over){if(e.key==='Enter'||e.key===' '){e.preventDefault();start();}return;}
    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
+   if(optsOpen){if(e.key==='Escape'||e.key==='p'||e.key==='P'){e.preventDefault();openOpts(false);}return;}
+   if(e.key==='m'||e.key==='M'){setMusic(!musicOn);return;}
+   if(e.key==='n'||e.key==='N'){setMute(!muted);return;}
    if(e.key==='p'||e.key==='P'||e.key==='Escape'){if(game&&game.onPause)game.onPause();else setPause();return;}
    // Space/Enter on the start screen starts at once (not on the next frame, which can be slow on huge screens)
    if((e.key===' '||e.key==='Enter')&&!e.repeat&&!paused&&game&&game.intro&&game.tap&&!game.onKey)game.tap();
@@ -173,7 +194,12 @@ const Host=(()=>{
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&view==='game'){if(game&&game.onPause)game.onPause('open');else setPause(true);}});
   ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{const on=!!(document.fullscreenElement||document.webkitFullscreenElement);$('btnFull').textContent=on?'🗗':'⛶';setTimeout(fit,60);}));
   $('btnPause').onclick=()=>{if(game&&game.onPause)game.onPause();else setPause();};
-  $('btnSound').onclick=()=>setMute(!muted);
+  $('btnOpts').onclick=()=>openOpts(!optsOpen);$('btnOptsDone').onclick=()=>openOpts(false);
+  $('opts').addEventListener('pointerdown',e=>{if(e.target===$('opts'))openOpts(false);});
+  $('optSfx').onclick=()=>setMute(!muted);$('optMusic').onclick=()=>setMusic(!musicOn);$('optHand').onclick=()=>setHand(!lefty);
+  document.querySelectorAll('#optSize [data-v]').forEach(b=>b.onclick=()=>setSize(b.dataset.v));
+  addEventListener('pointerdown',getAC,{capture:true});
+  document.body.classList.toggle('lefty',handed());
   $('btnFull').onclick=()=>setFull(!(document.fullscreenElement||document.webkitFullscreenElement));
   $('btnAgain').onclick=()=>start();
   setMute(muted);start();wireCanvas();

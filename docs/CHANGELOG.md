@@ -12,6 +12,10 @@ The AI's changes to the games are logged separately in `data/changes.json` (the 
   - **Home page "request failed: …/hopper.mp4".** Chrome cancels preview-video downloads part-way
     (`net::ERR_ABORTED`) when a video is paused or swapped. That is no longer counted as an error;
     any other failed request still is.
+- **AI run 4 published by hand (Stuart's go-ahead, 27 Nov).** Its work (music for every game, an options
+  panel with a left-handed controller) was untouched: rule check and full rig (1,725/1,725) re-run on it
+  with the fixed rig, then `tools/evolve/finalise.mjs` did the usual log, archive, pictures and clips.
+  Cost/steps/minutes in the log come from the run's own summary line ($1.53, 43 steps, 17 min).
 
 ## 1.2.1 — 16 Nov 2026
 

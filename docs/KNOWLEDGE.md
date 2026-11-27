@@ -91,6 +91,14 @@ the rig read these. Ids are permanent: the history is keyed on them.
      - if PRs from Actions aren't allowed, it pushes straight to `main`
 - **If the guard or tests fail:** the branch is pushed and a "⚠️ failed checks" PR is opened for
   Stuart. Nothing goes live and the log is not changed.
+- **Publishing a held-back run by hand** (only if the failure was the rig's fault, not the AI's; done
+  for run 4 on 27 Nov 2026): fix the rig on `main`, then on a fresh `main` checkout
+  `git checkout origin/ai/run-NNN -- enhanced ai`, run `node tools/evolve/guard.mjs <main sha>` and
+  `node tests/check.js`; then `RUN=N RUN3=NNN DATE=YYYY-MM-DD FOCUS=… RESULT_FILE=<result.json>
+  ACTIONS_URL=<run url> node tools/evolve/finalise.mjs`, then `RUN=N node tools/evolve/finalise.mjs
+  --pr=<PR url>`, commit and push to `main`. `result.json` is the last `"type":"result"` line of the
+  transcript artifact; if that can't be downloaded, write one from the "🏁 … steps · $… · … min" line
+  at the end of the AI step's log.
 - **Cost:** API use only, capped by `--max-budget-usd` (default $10 a run).
 - **Needs:**
   - the `ANTHROPIC_API_KEY` secret
