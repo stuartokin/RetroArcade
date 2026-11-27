@@ -90,7 +90,16 @@
    "desc": "Stack, spin and clear lines. 2 players: send junk to your rival!",
    "play": "play.html?game=blocks",
    "origin": "classic"
+  },
+  {
+   "id": "moon",
+   "name": "Moon Bounce",
+   "icon": "🌙",
+   "desc": "Bounce from cloud to cloud, up through the sky to the moon!",
+   "play": "play.html?game=moon",
+   "origin": "ai",
+   "born": "2026-11-27"
   }
  ],
- "run": 5
+ "run": 6
 }

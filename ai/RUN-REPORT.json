@@ -1,25 +1,37 @@
 {
-  "title": "Planet Guardian gets its own cast, a living planet and an alarm for kidnapped colonists",
-  "summary": "This week was all about Planet Guardian. Its enemies and wording followed one well-known old arcade game too closely, so it now has its own story: you protect colonists who live in glowing domes from Grabbers, Frenzies, Hunters, Seeders, Hives and Stingers. Everything is now drawn in code, with a night sky, a ringed moon, hills, a sleeker ship and glowing lasers. When a colonist is carried off out of sight, a siren sounds and an arrow flashes at the edge of the screen.",
-  "kind": "enhance",
+  "title": "A new game: Moon Bounce, a cloud-hopping climb from a blue sky to the moon",
+  "summary": "This week the arcade gets its first game invented by the AI. In Moon Bounce a little green alien springs from cloud to cloud, climbing through a day sky, a sunset, twilight and a starry night into outer space while the moon grows bigger above. It needs only left and right, so it suits the youngest players and phones; I added it because every other game in the arcade goes across or down, and none goes up.",
+  "kind": "new-game",
   "changes": [
     {
-      "game": "guardian",
+      "game": "moon",
       "what": [
-        "New, original cast: colonists instead of 'humanoids'; Grabbers, Frenzies, Hunters, Seeders, Hives and Stingers instead of names borrowed from an old commercial game; a Nova bomb; 'Wave clear' and 'Colony lost' screens",
-        "Every enemy, the ship and the colonists are now drawn in code with soft glows instead of small blocky sprites: the Grabber is a saucer with swaying legs and a tractor beam, the Frenzy a spiky, angry ball that watches you, the Hive a honeycomb, the Stingers little striped wasps",
-        "A real planet: night-sky gradient, a ringed moon, far hills that scroll more slowly, filled green hills with a glowing ridge and crystals, and a dome for each colonist that goes dark if they are lost. When the colony falls the land turns red and the domes go dark",
-        "A sleeker ship that tilts as it climbs or dives, turns round smoothly, leaves an engine trail and shows a shield bubble while it is protected; brighter lasers; shock rings when things explode",
-        "A siren and 'HELP!' when a colonist is grabbed, and a flashing arrow at the edge of the screen pointing to any colonist being carried off out of sight; carried colonists blink on the scanner",
-        "Fairer play: Grabbers wait a few seconds before their first grab in the first two waves, they rise a little more slowly, enemy shots are slower in the first two waves, at most three Hunters at once, and chasers near you are moved away when you come back after losing a ship",
-        "Fixes: Grabbers no longer sink into the ground while lining up, and the stars no longer jump when you fly all the way round the planet",
-        "New heads-up display: bigger colonist count, ship icons for lives and star icons for Nova bombs"
+        "New game: bounce up from cloud to cloud; the screen edges wrap round, so walking off one side brings you back on the other",
+        "Five skies that change smoothly as you climb (every 1,000 m), each with a bonus and an extra life (up to five)",
+        "Springs for super jumps, crumbly clouds that hold you only once, moving clouds, rocket packs and stars to collect",
+        "Grumpy storm-puffs: jump on them or throw a star at them; touching one from the side or below costs a life",
+        "Falling off is forgiving: a bubble carries you back to a glowing rescue cloud",
+        "Steer with the arrow keys, the on-screen buttons, or by dragging a finger on the game; its own tune",
+        "All drawn in code: the alien, clouds, sun, moon, ringed planet and stars"
       ],
-      "why": "Stuart asked for this run to focus on Planet Guardian. It was the plainest-looking game left, and its names and wording broke the arcade's rule of being original, so it needed a new identity as well as a new look. The alarm and arrow help with the hardest part of the game: noticing a kidnapping that is happening off screen."
+      "why": "Stuart asked for a new game, and the arcade had nothing that climbs. I wanted something simple enough for a small child on a phone that still has a sense of getting somewhere."
+    },
+    {
+      "game": "all",
+      "what": [
+        "The player shell knows the new game's buttons and help line, and the music player has a new tune; no other game's behaviour changed"
+      ],
+      "why": "Needed to add the new game."
     }
   ],
-  "new_games": [],
-  "retired_games": [],
-  "tested": "Full test rig on the AI-enhanced side: 1,255 checks passed (every screen size from a 344-pixel-wide folded phone to 4K, upright and sideways, keyboard and touch), and the Planet Guardian checks again after the last small changes (455 passed). I played it with real key presses and drove it with an autopilot through six waves, checked the off-screen alarm, the wave-clear screen and the lost-colony scene, and looked at pictures on a desktop, a folded Fold upright and a Fold on its side.",
-  "next": "On a tall, narrow phone the wide game still leaves empty space above and below; a future run could let Planet Guardian show more sky on tall screens. After that, back to Brick Blaster, or music that reacts to what is happening in the game."
+  "ideas": [
+    "Moon Bounce: spring from cloud to cloud up through the sky into space, towards the moon",
+    "Bubble Garden: aim and fire coloured bubbles at a ceiling of bubbles; three of a colour pop",
+    "Comet Courier: steer a little ship round planets with gravity to deliver parcels to moons"
+  ],
+  "new_games": [
+    "moon"
+  ],
+  "tested": "Played Moon Bounce with the keyboard on a laptop-sized window and by touch on the folded Fold upright (344×882) and on its side (882×344), and looked at the pictures. An autopilot climbed it for nearly seven minutes (over 8,000 m, every sky) with no errors; with three lives it reached 1,800 to 3,700 m, which felt like a fair challenge. Full test rig: 1,401 checks passed and 18 failed. All 18 failures are one home-page check (two parts, nine devices), which expects exactly 11 AI games (it counts '1 / 51' in the carousel) and so fails as soon as any new game is added; that check needs a human fix in tests/check.js, which I'm not allowed to change.",
+  "next": "Give Moon Bounce a real arrival at the moon (landing on its surface, then a new set of skies), and look again at Brick Blaster and reactive music."
 }
