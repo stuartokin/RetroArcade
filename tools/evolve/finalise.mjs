@@ -28,7 +28,7 @@ if(ids.length){try{execFileSync('node',['tools/clips.js','--dir=enhanced',`--gam
 // 4. the log entry
 const entry={run,date,kind:rep.kind,focus:E.FOCUS||'ai-decides',...(E.GAME?{focus_game:E.GAME}:{}),title:rep.title,summary:rep.summary,
  changes:(rep.changes||[]).map(c=>({game:c.game,what:Array.isArray(c.what)?c.what:[String(c.what)],why:c.why||''})),
- new_games:rep.new_games||[],retired_games:rep.retired_games||[],tested:rep.tested||'',next:rep.next||'',
+ ...(Array.isArray(rep.ideas)&&rep.ideas.length?{ideas:rep.ideas.map(String).slice(0,5)}:{}),new_games:rep.new_games||[],retired_games:rep.retired_games||[],tested:rep.tested||'',next:rep.next||'',
  status:'live',archive:`${arch}/`,shots,
  cost_usd:typeof res.total_cost_usd==='number'?Math.round(res.total_cost_usd*100)/100:null,
  turns:res.num_turns||null,minutes:res.duration_ms?Math.round(res.duration_ms/60000):null,

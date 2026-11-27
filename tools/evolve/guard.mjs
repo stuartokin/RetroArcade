@@ -35,6 +35,9 @@ if(rep){for(const k of ['title','summary','kind','tested'])if(!rep[k]||typeof re
  const before=JSON.parse(sh(`git show ${base}:enhanced/games.json`)).games.map(g=>g.id);
  for(const id of before)if(!ids.has(id)&&!retired.has(id))bad(`Game ${id} vanished from enhanced/games.json without being listed in "retired_games"`);
  for(const id of ids)if(!before.includes(id)&&!(rep.new_games||[]).includes(id))bad(`Game ${id} is new but not listed in "new_games"`);}
+// 4b. a run asked for a new game must deliver one, with the ideas it weighed up
+if(rep&&process.env.FOCUS==='new-game'){if(!(rep.new_games||[]).length)bad('This run was asked to create a new game, but "new_games" is empty');
+ if(!Array.isArray(rep.ideas)||rep.ideas.length<2)bad('A new-game run must list the 2 or 3 ideas it considered in "ideas"');}
 // 5. self-contained: no links outside enhanced/ and no remote resources
 const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
 let total=0;

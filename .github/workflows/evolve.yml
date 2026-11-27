@@ -6,12 +6,13 @@
 #   3. if both pass: the run is logged (data/changes.json), archived (archive/run-NNN/), photographed,
 #      opened as a pull request labelled "🤖 AI-maintained" and merged automatically;
 #      if either fails: the pull request stays open for Stuart to look at and nothing goes live.
-# Cost: the AI's API use, capped per run by the budget below (default $10). See docs/KNOWLEDGE.md §5.
+# The scheduled run on the first Sunday of each month is told to create a new game; other Sundays the AI decides.
+# Cost: the AI's API use, capped per run (default $10 and 150 steps; $15 and 250 steps for a new game). See docs/KNOWLEDGE.md §5.
 # Off switch: automation.json here, or the master in stuartokin.github.io ("paused": true). Manual runs still go ahead.
 name: Evolve the games
 on:
   schedule:
-    - cron: '17 5 * * 0'       # Sundays 05:17 UTC (off the hour: GitHub delays top-of-hour runs)
+    - cron: '17 5 * * 0'       # Sundays 05:17 UTC (off the hour: GitHub delays top-of-hour runs); 1st Sunday = new game
   workflow_dispatch:
     inputs:
       focus:
@@ -28,13 +29,13 @@ on:
         required: false
         default: ''
       budget:
-        description: 'Maximum API spend for this run, in US dollars.'
+        description: 'Maximum API spend for this run, in US dollars. Blank = 10 (15 for a new game).'
         required: false
-        default: '10'
+        default: ''
       max_turns:
-        description: 'Maximum number of AI steps.'
+        description: 'Maximum number of AI steps. Blank = 150 (250 for a new game).'
         required: false
-        default: '150'
+        default: ''
 permissions:
   contents: write
   pull-requests: write
@@ -99,8 +100,9 @@ jobs:
       FOCUS: ${{ inputs.focus || 'ai-decides' }}
       GAME: ${{ inputs.game }}
       NOTE: ${{ inputs.note }}
-      BUDGET: ${{ inputs.budget || '10' }}
-      MAX_TURNS: ${{ inputs.max_turns || '150' }}
+      BUDGET: ${{ inputs.budget }}
+      MAX_TURNS: ${{ inputs.max_turns }}
+      EVENT: ${{ github.event_name }}
       MODEL: ${{ vars.EVOLVE_MODEL }}
     steps:
       - uses: actions/checkout@v4
@@ -134,6 +136,8 @@ jobs:
         continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BUDGET: ${{ steps.prep.outputs.BUDGET }}
+          MAX_TURNS: ${{ steps.prep.outputs.MAX_TURNS }}
         run: |
           ARGS=(-p "$(cat "$RUNNER_TEMP/prompt.md")" --output-format stream-json --verbose
                 --max-turns "$MAX_TURNS" --max-budget-usd "$BUDGET" --dangerously-skip-permissions)
@@ -152,6 +156,8 @@ jobs:
       - name: Rule check
         id: guard
         continue-on-error: true
+        env:
+          FOCUS: ${{ steps.prep.outputs.FOCUS }}
         run: node tools/evolve/guard.mjs "${{ steps.prep.outputs.BASE }}"
       - name: Test rig (every game, every device)
         id: tests
@@ -165,6 +171,7 @@ jobs:
           RUN3: ${{ steps.prep.outputs.RUN3 }}
           DATE: ${{ steps.prep.outputs.DATE }}
           GAME: ${{ steps.prep.outputs.GAME }}
+          FOCUS: ${{ steps.prep.outputs.FOCUS }}
           RESULT_FILE: ${{ runner.temp }}/result.json
           PR_BODY: ${{ runner.temp }}/pr-body.md
           ACTIONS_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

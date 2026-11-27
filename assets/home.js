@@ -13,7 +13,7 @@
  // ---------- the ⓘ popover: description and stats ----------
  const real=runs.filter(r=>r.kind!=='baseline'&&r.status!=='failed'),lastRun=real[0],aiMade=enh.games.filter(g=>g.origin==='ai').length,nr=nextRun();
  $('stats').innerHTML=[['AI runs so far',real.length],['Last change',lastRun?fmt(lastRun.date):'None yet'],
-  ['Next run',nr.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', early'],['Games',`${enh.games.length}${aiMade?` (${aiMade} by the AI)`:''}`]]
+  ['Next run',nr.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+(nr.getUTCDate()<=7?': a new game':', early')],['Games',`${enh.games.length}${aiMade?` (${aiMade} by the AI)`:''}`]]
   .map(([k,v])=>`<div class="stat"><small>${k}</small><b>${esc(v)}</b></div>`).join('');
 
  // ---------- one game, as a tile or a carousel card ----------
@@ -30,7 +30,8 @@
  function fitTiles(){const W=tiles.clientWidth,H=tiles.clientHeight-10,N=games.length,gap=W<700?8:12;if(!W||!H)return;
   let best=null;for(let c=1;c<=N;c++){const r=Math.ceil(N/c),tw=(W-(c-1)*gap)/c,th=(H-(r-1)*gap)/r,score=Math.min(tw,th*.8);if(!best||score>best.score)best={c,r,tw,th,score};}
   const scroll=best.score<165||W<520;tiles.classList.toggle('scroll',scroll);tiles.style.setProperty('--gap',gap+'px');
-  if(scroll){const cols=W>=520?3:2,cw=(W-(cols-1)*gap)/cols;tiles.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;tiles.style.gridTemplateRows='';tiles.style.gridAutoRows=Math.round(Math.min(cw/.72,H*.62))+'px';return;}
+  // too many games for one screen: scroll, with as many columns as fit at a comfortable size (2 on phones)
+  if(scroll){const cols=W>=520?Math.max(3,Math.floor((W+gap)/(250+gap))):2,cw=(W-(cols-1)*gap)/cols;tiles.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;tiles.style.gridTemplateRows='';tiles.style.gridAutoRows=Math.round(Math.min(cw/.72,H*.62))+'px';return;}
   tiles.style.gridAutoRows='';
   const w=Math.floor(Math.min(best.tw,best.th*1.15)),h=Math.floor(Math.min(best.th,w/.62));
   tiles.style.gridTemplateColumns=`repeat(${best.c},${w}px)`;tiles.style.gridTemplateRows=`repeat(${best.r},${h}px)`;}
@@ -38,7 +39,9 @@
  // ---------- carousel: cards on a ring, turned by dragging, swiping, arrows or keys ----------
  const wrap=$('ringWrap'),ring=$('ring'),N=games.length,step=360/N;let angle=0,radius=600,cards=[],lastFront=-1;
  ring.innerHTML=games.map((x,i)=>`<article class="card" data-i="${i}" id="c-${esc(x.id)}">${face(x)}</article>`).join('');cards=[...ring.children];
- $('dots').innerHTML=games.map((x,i)=>`<button type="button" data-i="${i}" aria-label="${esc(x.g.name)}"></button>`).join('');
+ // a dot per game while they fit on one line; past 16 games a "3 / 24" counter instead
+ const many=N>16;$('dots').classList.toggle('count',many);
+ $('dots').innerHTML=many?'<span aria-live="polite"></span>':games.map((x,i)=>`<button type="button" data-i="${i}" aria-label="${esc(x.g.name)}"></button>`).join('');
  const frontIndex=()=>((Math.round(-angle/step)%N)+N)%N;
  function place(anim){const H=wrap.clientHeight,W=wrap.clientWidth;if(!W||!H)return;
   let cw,ch;if(W<640){cw=Math.min(W*.8,H*.86*.66);ch=Math.min(H*.86,cw/.66);}else{ch=Math.min(H*.86,(W*.72)/.74);cw=ch*.74;}wrap.style.setProperty('--cw',cw+'px');wrap.style.setProperty('--ch',ch+'px');
@@ -47,7 +50,7 @@
   cards.forEach((c,i)=>{c.style.transform=`rotateY(${i*step}deg) translateZ(${radius}px)`;const dlt=Math.abs(((i*step+angle)%360+540)%360-180);
    c.style.opacity=String(Math.max(.18,1-dlt/150));c.classList.toggle('front',i===f);c.setAttribute('aria-hidden',i===f?'false':'true');
    c.querySelectorAll('a').forEach(a=>a.tabIndex=i===f?0:-1);});
-  [...$('dots').children].forEach((b,i)=>b.setAttribute('aria-current',String(i===f)));if(typeof videos==='function'&&lastFront!==f){lastFront=f;videos();}}
+  if(many)$('dots').firstChild.textContent=`${f+1} / ${N}`;else [...$('dots').children].forEach((b,i)=>b.setAttribute('aria-current',String(i===f)));if(typeof videos==='function'&&lastFront!==f){lastFront=f;videos();}}
  const goTo=i=>{const cur=frontIndex();let delta=((i-cur)%N+N)%N;if(delta>N/2)delta-=N;angle=Math.round(-angle/step)*-step-delta*step;place(true);};
  $('prev').onclick=()=>goTo(frontIndex()-1);$('next').onclick=()=>goTo(frontIndex()+1);
  $('dots').onclick=e=>{const b=e.target.closest('[data-i]');if(b)goTo(+b.dataset.i);};

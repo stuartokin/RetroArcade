@@ -44,7 +44,8 @@ async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(
   if(view==='tiles'){const n=await page.$$eval('.tile',t=>t.length);ok(n===want,`${tag}: one tile per game`,`${n} tiles, ${want} games`);
    // on anything bigger than a phone every tile fits on screen without scrolling
    const big=d.w>=700&&d.h>=600;
-   if(big){const off=await page.evaluate(()=>[...document.querySelectorAll('.tile')].filter(t=>{const r=t.getBoundingClientRect();return r.bottom>innerHeight+1||r.right>innerWidth+1||r.top<0||r.height<120;}).length);
+   // (once there are too many games for one screen, the tiles scroll instead: checked below with pretend games)
+   if(big&&!(await page.$eval('#tiles',t=>t.classList.contains('scroll')))){const off=await page.evaluate(()=>[...document.querySelectorAll('.tile')].filter(t=>{const r=t.getBoundingClientRect();return r.bottom>innerHeight+1||r.right>innerWidth+1||r.top<0||r.height<120;}).length);
     ok(off===0,`${tag}: every game fits on one screen`,`${off} tiles off screen or too small`);}
    const clipped=await page.evaluate(()=>[...document.querySelectorAll('.tile .acts .btn')].filter(b=>{const r=b.getBoundingClientRect(),t=b.closest('.tile').getBoundingClientRect();return r.right>t.right+1||r.left<t.left-1||b.scrollWidth>b.clientWidth+1;}).length);
    ok(clipped===0,`${tag}: play buttons fit inside their tiles`,`${clipped} clipped`);
@@ -62,6 +63,23 @@ async function checkHome(browser,base,d,E,O){const want=new Set([...E.games.map(
    await page.evaluate(()=>ARCADE_HOME.highlight('blocks'));await page.waitForTimeout(700);ok(await page.evaluate(()=>ARCADE_HOME.front())==='blocks',`${tag}: a search result turns the carousel to that game`);
    ok(await page.$$eval('.card video.clip',v=>v.filter(x=>!x.paused).length)<=1,`${tag}: only the front card plays its preview`);}
   ok(!errs.length,`${tag}: no errors`,errs.join(' | '));await ctx.close();}
+ // room to grow: with 40 more (pretend) AI games, tiles stay a usable size and scroll inside the page, the page
+ // itself never scrolls or gets wider than the screen, and the carousel shows a counter instead of 51 dots
+ {const {ctx,page,errs}=await newPage(browser,d);const tag=`home with 51 games @${d.name}`;
+  await page.route('**/enhanced/games.json',async r=>{const j=await (await r.fetch()).json();const src=j.games.slice();for(let i=0;i<40;i++){const g=src[i%src.length];j.games.push({...g,id:'pretend'+i,name:'Pretend '+(i+1),origin:'ai',born:'2026-12-01'});}r.fulfill({json:j});});
+  await page.goto(base+'?view=tiles',{waitUntil:'load'});await page.waitForFunction(()=>window.ARCADE_HOME&&ARCADE_HOME.ready,null,{timeout:8000}).catch(()=>{});await page.waitForTimeout(150);
+  ok(await page.$$eval('.tile',t=>t.length)===want+40,`${tag}: a tile for every game`);
+  ok(await overflow(page)<=1,`${tag}: not wider than the screen`,`${await overflow(page)}px too wide`);
+  ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1),`${tag}: the page itself never scrolls`);
+  const sz=await page.evaluate(()=>{const t=[...document.querySelectorAll('.tile')].map(e=>e.getBoundingClientRect());return{w:Math.min(...t.map(r=>r.width)),h:Math.min(...t.map(r=>r.height)),right:Math.max(...t.map(r=>r.right))};});
+  ok(sz.w>=140&&sz.h>=120&&sz.right<=d.w+1,`${tag}: tiles stay a usable size`,JSON.stringify(sz));
+  const last=await page.evaluate(()=>{const g=document.getElementById('tiles'),t=[...document.querySelectorAll('.tile')].pop();g.scrollTop=g.scrollHeight;const r=t.getBoundingClientRect(),G=g.getBoundingClientRect();return r.top>=G.top-1&&r.bottom<=G.bottom+1;});
+  ok(last,`${tag}: the last game can be scrolled to`);
+  await page.click('button[data-view="carousel"]');await page.waitForTimeout(500);
+  ok(/^1 \/ 51$/.test((await page.textContent('#dots')).trim()),`${tag}: the carousel shows "1 / 51"`,(await page.textContent('#dots')).trim().slice(0,40));
+  await page.click('#next');await page.waitForTimeout(650);ok(/^2 \/ 51$/.test((await page.textContent('#dots')).trim()),`${tag}: › moves the counter on`);
+  ok(await overflow(page)<=1,`${tag}: carousel not wider than the screen`);
+  const real=errs.filter(e=>!/pretend|404/.test(e));ok(!real.length,`${tag}: no errors`,real.join(' | '));await ctx.close();}
  // the ⋮ menu opens the log and help as windows; Escape closes them; the ⓘ shows the description
  const {ctx,page,errs}=await newPage(browser,d);const tag=`windows @${d.name}`;
  await page.goto(base+'?view=tiles',{waitUntil:'load'});await page.waitForFunction(()=>window.ARCADE_HOME&&ARCADE_HOME.ready,null,{timeout:8000}).catch(()=>{});

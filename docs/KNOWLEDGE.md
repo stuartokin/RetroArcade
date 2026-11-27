@@ -19,7 +19,7 @@ what the AI did, when, and why, and play any past week's version.
 
 | Path | What |
 |---|---|
-| `index.html` + `assets/home.js` | The home app on one screen: top bar (ⓘ popover, Tiles/Carousel switch saved as `retro.view` and chosen before first paint, ⋮ menu) and the two views. Tiles are sized by `fitTiles()` (most columns × rows that fit; under ~165 px they scroll in 2–3 columns); the carousel is a CSS 3D ring (`place()`, `goTo()`). `window.ARCADE_HOME` is the test hook |
+| `index.html` + `assets/home.js` | The home app on one screen: top bar (ⓘ popover, Tiles/Carousel switch saved as `retro.view` and chosen before first paint, ⋮ menu) and the two views. Tiles are sized by `fitTiles()` (most columns × rows that fit on one screen; once tiles would drop under ~165 px they scroll inside the page instead, with as many ~250 px columns as fit, 2 on phones; the page itself never scrolls); the carousel is a CSS 3D ring (`place()`, `goTo()`), with a dot per game up to 16 games and a "3 / 24" counter after that. Nothing needs changing as games are added (the rig checks 51). `window.ARCADE_HOME` is the test hook |
 | windows (`#win-log`, `#win-how` in `index.html`) | App-style windows opened from ⋮; hash addresses `#log`, `#log/game=id`, `#log/run-N`, `#how`; Back/Escape/✕ close |
 | search (in `home.js`) | `find()` scores the name (start, whole word, anywhere) then words in the description; never commercial names. `highlight(id)` glows the tile or turns the carousel |
 | previews (in `home.js`) | `<video class=clip>` over each still; landscape games get `.wide` (shown whole, `contain`); an IntersectionObserver plays tiles on screen; the carousel plays its front card; none for reduced motion |
@@ -68,7 +68,7 @@ the rig read these. Ids are permanent: the history is keyed on them.
 ## 5. The weekly run (`evolve.yml`)
 
 - **When:**
-  - Sundays at 05:17 UTC
+  - Sundays at 05:17 UTC; the first Sunday of each month (day 1–7) is a **new-game run**, the others are "AI decides" (`prepare.mjs` decides from `EVENT`)
   - or by hand from the Actions tab, with inputs: focus (`ai-decides` / `one-game` / `all-games` /
     `new-game`), game (name or id, e.g. "Planet Guardian"; matched by `prepare.mjs`), a note to the AI, budget (USD, default 10) and max steps (default 150)
 - **Steps:**
@@ -99,7 +99,11 @@ the rig read these. Ids are permanent: the history is keyed on them.
   --pr=<PR url>`, commit and push to `main`. `result.json` is the last `"type":"result"` line of the
   transcript artifact; if that can't be downloaded, write one from the "🏁 … steps · $… · … min" line
   at the end of the AI step's log.
-- **Cost:** API use only, capped by `--max-budget-usd` (default $10 a run).
+- **Cost:** API use only, capped by `--max-budget-usd`: $10 and 150 steps by default, $15 and 250 steps for
+  a new-game run (scheduled or chosen by hand). Typed-in budget/steps override both; blank = default.
+- **New-game runs:** the AI writes 2–3 one-line ideas, picks one, builds it and lists them in the report's
+  `"ideas"` (shown in the log in a gold box). The rule check fails the run if no new game was added or the
+  ideas are missing. The brief says never retire a game in a new-game run.
 - **Needs:**
   - the `ANTHROPIC_API_KEY` secret
   - Actions permissions: read and write, plus "Allow GitHub Actions to create and approve pull
@@ -112,7 +116,8 @@ the rig read these. Ids are permanent: the history is keyed on them.
   iPad 820×1180, Stuart's 1908×950, QHD and 4K.
 - **Pages:** on every device, in both views:
   - the page never scrolls, and is never too wide
-  - one tile or card per game; every tile fits on one screen (bigger than a phone); buttons aren't clipped
+  - one tile or card per game; every tile fits on one screen (bigger than a phone) until there are too many, then they scroll; buttons aren't clipped
+  - "home with 51 games": 40 pretend AI games injected on every device; tiles stay ≥140×120, the last can be scrolled to, nothing is wider than the screen, the carousel counter reads 1 / 51 and moves on
   - the carousel turns by › and by drag
   - the ⋮ menu opens the log and help windows; Escape and ✕ close them; ⓘ shows the description
   - links work, and there are no errors

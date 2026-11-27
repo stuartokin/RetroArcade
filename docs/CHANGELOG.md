@@ -2,6 +2,20 @@
 
 The AI's changes to the games are logged separately in `data/changes.json` (the evolution page).
 
+## 1.3.0 — 27 Nov 2026
+
+- **A new game every month.** The scheduled run on the first Sunday of each month is told to create a
+  new game; other Sundays the AI decides. By hand: focus `new-game`, as before.
+- **More room for a new game:** new-game runs get 250 steps and $15 unless you type other numbers
+  (blank budget/steps now mean "the default", 150 and $10 otherwise).
+- **The pitch:** a new-game run starts with 2–3 one-line ideas and picks one; the log shows them
+  ("The ideas it considered"). The rule check rejects a new-game run with no new game or no ideas.
+- **Home page ready for many more games** (nothing retired): tiles keep filling one screen while they
+  can, then scroll inside the page with as many columns as fit (7 on Stuart's 1908 window, 2 on a
+  phone). The carousel swaps its dots for a "3 / 24" counter past 16 games. ⓘ panel says when the next
+  run is a new game.
+- Rig: "home with 51 games" checks on every device (40 pretend games).
+
 ## 1.2.3 — 27 Nov 2026
 
 - **Run workflow → "game" box takes the game's name** ("Planet Guardian", any case, or a clear part such

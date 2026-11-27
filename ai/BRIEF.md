@@ -82,12 +82,18 @@ The workflow records the moving previews (`tools/clips.js`) and the pictures aft
   "changes": [
     {"game": "maze", "what": ["Plain-English bullet", "Another"], "why": "Why you chose this."}
   ],
+  "ideas": ["New-game runs only: the 2 or 3 one-line game ideas you considered, the chosen one first"],
   "new_games": ["ids of games you created this run"],
   "retired_games": ["ids of games you removed this run, if any"],
   "tested": "How you tested it (devices, what you played, what you looked at).",
   "next": "What you'd like to try in a future run."
 }
 ```
+
+**New-game runs.** When a run asks for a new game, start by writing 2 or 3 one-line ideas in your
+journal, pick one and say why, then build it. List the ideas in `"ideas"` (the chosen one first); they
+appear in the public log. The run must end with a finished, working new game in `new_games`; if time
+runs short, make it smaller rather than leave it out. Never retire a game in a new-game run.
 
 List every game you changed in `changes`, including new games, even if the change seems obvious
 or tiny (e.g. "faster start", "new colours"). The log is how Stuart sees what you did over time.

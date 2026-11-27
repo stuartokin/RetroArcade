@@ -22,6 +22,10 @@
 - **27 Nov 2026**: `tests/check.js` timing fixes (wait for the intro to draw and up to 2 s for a start;
   ignore aborted video downloads). This changes the AI's conditions only by removing two false failures
   that held back run 4; every check asks the same of the games as before.
+- **27 Nov 2026** (Stuart): a new game every month (first Sunday's scheduled run), also available by hand.
+  New-game runs: 250 steps and $15, a 2–3 idea pitch shown in the log, and they must deliver a game.
+  **No game is ever retired** to make room; the home page scrolls instead. This changes the AI's
+  conditions (`ai/BRIEF.md`, `guard.mjs`, `tests/check.js`).
 - **27 Nov 2026**: run 4 published by hand after the fix (Stuart chose "publish"); PR #3 closed by the
   push. If a run is held back by a rig fault again, the same recipe works: KNOWLEDGE → evolve.
 
@@ -43,6 +47,9 @@
 
 - [x] Card on HorizonQ Observatories ("Just for fun"), with a trailer (16 Nov 2026).
 - [ ] After ~4 runs: review cost per run and the quality of the log; adjust the budget.
+
+- [ ] Watch the first monthly new-game run (Sun 6 Dec 2026): does it pitch, finish a game inside 250
+      steps / $15, and does the new tile, preview and log entry look right?
 
 ## Parked ideas
 

@@ -100,6 +100,7 @@ html[data-view=tiles] .carousel,html[data-view=carousel] .tiles{display:none}
 .dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:60vw}
 .dots button{width:9px;height:9px;border-radius:99px;border:0;padding:0;background:#3a4190;cursor:pointer;transition:width .2s}
 .dots button[aria-current=true]{width:24px;background:var(--neon)}
+.dots.count{font:600 14px/1 var(--mono,monospace);color:var(--mute);letter-spacing:.06em;min-width:5.5em;justify-content:center;font-variant-numeric:tabular-nums}
 
 /* ---------- app windows ---------- */
 .scrim{position:fixed;inset:0;z-index:50;background:rgba(3,4,14,.7);backdrop-filter:blur(3px)}
@@ -189,3 +190,6 @@ video.pic.ready{opacity:1}
 
 /* wide games (landscape canvas) show whole, at the top, instead of a blown-up middle */
 .tile .pic.wide,.card .pic.wide{object-fit:contain;object-position:center 8%;background:#000}
+
+.run .ideas{margin:8px 0;padding:8px 12px;border-left:3px solid var(--gold);background:rgba(255,228,94,.06);border-radius:6px}
+.run .ideas ul{margin:4px 0 0;padding-left:18px}
